@@ -5,11 +5,19 @@ export class Automaton {
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d'); // CanvasRenderingContext2D
         this.cellsize = 6;
+
         this.cols = Math.floor(canvas.width / this.cellsize);
         this.rows = Math.floor(canvas.height / this.cellsize);
         this.grid = []; // 2D-Array für den Zustand der Zellen
+
         this.running = false;   // Flag, um den Automaton zu starten oder zu stoppen
         this.randomize(); // Initialisiert das Gitter mit zufälligen Werten
+
+        this.ruleKey = ruleKey;
+        this.bpm = 120;
+        this.initMouseEvents();
+
+        this.draw();
     }
 
     // Füllt Gitter mit zufälligen lebenden Zellen basierend auf der angegebenen Dichte
@@ -19,6 +27,10 @@ export class Automaton {
                 Math.random() < density ? 1 : 0
             )
         );
+    }
+
+    setBPM(newBPM){
+        this.bpm = newBPM;
     }
 
     // Zeichnet das Gitter auf die Canvas
@@ -46,7 +58,7 @@ export class Automaton {
 
         for (let r = 0; r < this.rows; r++) {
             for (let c = 0; c < this.cols; c++) {
-                next[r][c] = RULES['Game of Life'](this.grid, r, c, this.rows, this.cols); // Anwenden der Regeln auf jede Zelle
+                next[r][c] = RULES[this.ruleKey](this.grid, r, c, this.rows, this.cols); // Anwenden der Regeln auf jede Zelle
             }   
         }
         
@@ -60,7 +72,11 @@ export class Automaton {
         const loop = () => {
             if (!this.running) return; // Stoppt die Schleife, wenn running false ist
             this.step(); // Berechnet den nächsten Schritt
-            setTimeout(loop, 100); // Wiederholt die Schleife alle 100ms
+
+            // Berechnet Millisekunden pro Schritt basierend auf BPM
+            const interval = (60 / this.bpm) * 1000;
+
+            setTimeout(loop, interval); // Wiederholt die Schleife alle 'interval'ms
         };
         loop(); // Startet die Schleife
     }
@@ -68,6 +84,42 @@ export class Automaton {
     // Stoppt die Simulation, indem das Flag auf false gesetzt wird
     stop() {
         this.running = false;
+    }
+
+    //Maus-Pinsel
+    initMouseEvents() {
+        let isDrawing = false;
+
+        const handleMouse = (e) => {
+            const rect = this.canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            
+            // Umrechnung in Grid-Koordinaten
+            const centerC = Math.floor(mouseX / this.cellsize);
+            const centerR = Math.floor(mouseY / this.cellsize);
+            
+            const radius = 2; // Pinselradius (Kann später als Parameter übergeben werden)
+            
+            // Zeichne im Radius um den Mauszeiger
+            for (let dr = -radius; dr <= radius; dr++) {
+                for (let dc = -radius; dc <= radius; dc++) {
+                    const r = centerR + dr;
+                    const c = centerC + dc;
+                    
+                    // Prüfen ob im Grid-Bereich
+                    if (r >= 0 && r < this.rows && c >= 0 && c < this.cols) {
+                        // Linksklick zeichnet (1), Rechtsklick/Shift-Klick könnte löschen (0)
+                        this.grid[r][c] = e.shiftKey ? 0 : 1; 
+                    }
+                }
+            }
+            this.draw();
+        };
+
+        this.canvas.addEventListener('mousedown', (e) => { isDrawing = true; handleMouse(e); });
+        this.canvas.addEventListener('mousemove', (e) => { if (isDrawing) handleMouse(e); });
+        window.addEventListener('mouseup', () => isDrawing = false);
     }
 }
 
