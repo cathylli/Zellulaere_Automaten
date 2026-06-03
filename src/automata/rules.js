@@ -12,11 +12,24 @@ function getNeighbors(grid, r, c, rows, cols) {
     return count;
 }
 
-// definiert die Regeln für das Spiel des Lebens
+// definiert die Regeln für die Automaten
 export const RULES = {
+    //Regeln für Game Of Life
     "gameOfLife": (grid, r, c, rows, cols) => {
         const n = getNeighbors(grid, r, c, rows, cols);
         if (grid[r][c]) return (n === 2 || n === 3) ? 1 : 0;
         else return (n === 3) ? 1 : 0;
+    },
+    // Regeln für HighLife (ein anderer bekannter Automat)
+    "highLife": (grid, r, c, rows, cols) => {
+        const n = getNeighbors(grid, r, c, rows, cols);
+        if (grid[r][c]) return (n === 2 || n === 3) ? 1 : 0; 
+        else return (n === 3 || n === 6) ? 1 : 0;           // Repliziert sich zusätzlich bei 6 Nachbarn
+    },
+    //Regeln für Seeds
+    "seeds": (grid, r, c, rows, cols) => {
+        const n = getNeighbors(grid, r, c, rows, cols);
+        if (grid[r][c]) return 0;                            // Jede lebende Zelle stirbt sofort
+        else return (n === 2) ? 1 : 0;                      // Geburt bei exakt 2
     }
 };
