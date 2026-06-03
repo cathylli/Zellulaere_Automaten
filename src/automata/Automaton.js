@@ -14,10 +14,21 @@ export class Automaton {
         this.randomize(); // Initialisiert das Gitter mit zufälligen Werten
 
         this.ruleKey = ruleKey;
+        this.brushMode = 'spray';
         this.bpm = 120;
         this.initMouseEvents();
 
         this.draw();
+    }
+
+    setBrushMode(mode) {
+        const validModes = ['spray', 'heat', 'storm', 'erase'];
+        if (validModes.includes(mode)) {
+            this.brushMode = mode;
+            console.log(`Pinselmodus gewechselt auf: ${mode}`);
+        } else {
+            console.error(`Ungültiger Pinselmodus: ${mode}`);
+        }
     }
 
     // Füllt Gitter mit zufälligen lebenden Zellen basierend auf der angegebenen Dichte
@@ -92,25 +103,56 @@ export class Automaton {
 
         const handleMouse = (e) => {
             const rect = this.canvas.getBoundingClientRect();
-            const mouseX = e.clientX - rect.left;
-            const mouseY = e.clientY - rect.top;
+            const scaleX = this.canvas.width / rect.width;
+            const scaleY = this.canvas.height / rect.height;
+
+            const mouseX = (e.clientX - rect.left) * scaleX;
+            const mouseY = (e.clientY - rect.top) * scaleY;
             
-            // Umrechnung in Grid-Koordinaten
             const centerC = Math.floor(mouseX / this.cellsize);
             const centerR = Math.floor(mouseY / this.cellsize);
             
-            const radius = 2; // Pinselradius (Kann später als Parameter übergeben werden)
-            
-            // Zeichne im Radius um den Mauszeiger
+            // Konfiguration je nach Modus dynmisch anpassen
+            let radius = 3;
+            let density = 0.35;
+
+            if (this.brushMode === 'heat' || this.brushMode === 'erase') {
+                radius = 4; // Feste Flächen dürfen ruhig etwas größer sein
+            } else if (this.brushMode === 'storm') {
+                radius = 2; // Storm ist extrem mächtig, lieber kleinerer Radius
+            }
+
             for (let dr = -radius; dr <= radius; dr++) {
                 for (let dc = -radius; dc <= radius; dc++) {
                     const r = centerR + dr;
                     const c = centerC + dc;
                     
-                    // Prüfen ob im Grid-Bereich
                     if (r >= 0 && r < this.rows && c >= 0 && c < this.cols) {
-                        // Linksklick zeichnet (1), Rechtsklick/Shift-Klick könnte löschen (0)
-                        this.grid[r][c] = e.shiftKey ? 0 : 1; 
+                        // Kreis-Check
+                        if (dr * dr + dc * dc <= radius * radius) {
+                            
+                            // Logik-Weiche für die verschiedenen Modi
+                            switch (this.brushMode) {
+                                case 'spray':
+                                    if (Math.random() < density) {
+                                        this.grid[r][c] = 1;
+                                    }
+                                    break;
+                                    
+                                case 'heat':
+                                    this.grid[r][c] = 1; // Alles radikal einschalten
+                                    break;
+                                    
+                                case 'storm':
+                                    // Invertieren: 1 wird 0, 0 wird 1
+                                    this.grid[r][c] = this.grid[r][c] === 1 ? 0 : 1;
+                                    break;
+                                    
+                                case 'erase':
+                                    this.grid[r][c] = 0; // Alles ausschalten
+                                    break;
+                            }
+                        }
                     }
                 }
             }
