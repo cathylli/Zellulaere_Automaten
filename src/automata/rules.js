@@ -14,7 +14,7 @@ function getNeighbors(grid, r, c, rows, cols) {
 
 // definiert die Regeln für das Spiel des Lebens
 export const RULES = {
-    "Game of Life": (grid, r, c, rows, cols) => {
+    "gameOfLife": (grid, r, c, rows, cols) => {
         const n = getNeighbors(grid, r, c, rows, cols);
         if (grid[r][c]) return (n === 2 || n === 3) ? 1 : 0;
         else return (n === 3) ? 1 : 0;
