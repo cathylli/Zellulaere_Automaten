@@ -1,9 +1,55 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Zelluläre Automaten</title>
+        <link rel="stylesheet" href="styles/main.css">
+    </head>
 <body>
-    <canvas id="canvas-1" width="1200" height="750"></canvas>
+    <!-- Einstellung Rules und Speedmanipulation kommt noch --> 
+    <!-- Hauptbereich -->
+    <div id="app">
+        <!-- Sidebar -->
+        <aside id="sidebar">
+            <section>
+                <h3>AUDIO</h3>
+                <ul id="audio-list">
+                    <li class ="audio-item" data-audio="public/audio/groovy-vibe.mp3">Track 1</li>
+                    <li class ="audio-item" data-audio="public/audio/retro-lounge.mp3">Track 2</li>
+                    <li class ="audio-item" data-audio="public/audio/sweet-life-luxury-chill.mp3">Track 3</li>
+                </ul>
+                <div id="audio-controls">
+                    <button id="btn-play">Play</button>
+                    <button id="btn-stop">Stop</button>
+                </div>
+            </section>
+
+            <section>
+                <h3>EINFLUSS</h3>
+                <ul id="brush-list">
+                    <li class="brush-item active" data-mode="spray">Temperatur</li>
+                    <li class="brush-item" data-mode="heat">Licht</li>
+                    <li class="brush-item" data-mode="storm">Sturm</li>
+                    <li class="brush-item" data-mode="erase">Löschen</li>
+                </ul>
+            </section>
+
+            <section>
+                <h3>THEMA</h3>
+                <ul id="theme-list">
+                    <li class="theme-item active" data-color="rosa">Rosa</li>
+                    <li class="theme-item" data-color="sw">S/W</li>
+                    <li class="theme-item" data-color="green">Grün</li>
+                    <li class="theme-item" data-color="blue">Blau</li>
+                </ul>
+            </section>
+        </aside>    
+
+        <!-- Hauptanzeige -->
+        <main id="main-display">
+            <canvas id="canvas-1"></canvas>
+        </main>
+    </div>
     <script type="module" src="src/main.js"></script>
-    <button id="btn-play">Musik abspielen</button>
-    <button id="btn-stop">Musik stoppen</button>
 </body>
 </html>
