@@ -107,12 +107,22 @@ window.addEventListener('load', () => {
     const visualizerCanvas = document.getElementById('visualizer-canvas');
     const visualizer = new Visualizer(analyzer, visualizerCanvas);
 
+
+
+
+
+
     /**
      * Main draw loop
      */
     function visualize() {
         requestAnimationFrame(visualize);
         visualizer.draw(lowShelfCutoff, highShelfCutoff);
+
+        //Energy für Automaton nutzen
+        const energy = analyzer.getEnergy();
+        //TODO 4: Nutze die Energie, um die Geschwindigkeit des Automaten zu steuern
+        //automaton.setBPM(100 + energy * 10); // Beispiel: BPM zwischen 100 und 1100 basierend auf der Energie
     }
 
     visualize();

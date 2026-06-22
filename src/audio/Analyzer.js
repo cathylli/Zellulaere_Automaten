@@ -31,6 +31,13 @@ class Analyzer {
   maxFrequency() {
     return this.audioContext.sampleRate / 2;
   }
+
+  // "Energie" des Signals berechnen, um sie für die Steuerung des Automaten zu nutzen
+  getEnergy() {
+    const buffer = this.getBuffer();
+    const avgEnergy = buffer.reduce((sum, value) => sum + value, 0) / buffer.length;
+    return avgEnergy;
+  }
 }
 
 export default Analyzer;
