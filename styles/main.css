@@ -126,3 +126,31 @@ body {
     border-color: #ff4d8f;
     color: #ff4d8f;
 }
+
+.drop-zone {
+  margin-top: 15px;
+  padding: 10px 8px;
+  border: 1px dashed #6b2040;
+  color: #a06080;
+  font-size: 10px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: rgba(45, 18, 32, 0.5);
+}
+
+.drop-zone:hover, 
+.drop-zone.is-dragover {
+  border-color: #ff4d8f;
+  color: #ff4d8f;
+  background: #2d1220;
+}
+
+.drop-zone span {
+  text-decoration: underline;
+  font-weight: bold;
+}
+
+.drop-zone p {
+  pointer-events: none;
+}
