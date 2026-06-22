@@ -1,4 +1,5 @@
 // prüft wie viele Nachbarn eine Zelle hat und entscheidet, ob sie lebt oder stirbt
+//TODO Möglichkeit zur Bestimmung verschiedener Nachbarn 
 function getNeighbors(grid, r, c, rows, cols) {
     let count = 0;
     for (let dr = -1; dr <= 1; dr++) {

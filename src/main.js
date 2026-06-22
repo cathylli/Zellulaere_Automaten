@@ -1,5 +1,6 @@
 import { Automaton } from './automata/Automaton.js';
 import { AudioEngine } from './audio/AudioEngine.js';
+import { DropZoneHandler } from './ui/DropZoneHandler.js';
 
 const audioEngine = new AudioEngine();
 const testTrackUrl = 'public/audio/groovy-vibe.mp3';
@@ -47,6 +48,13 @@ window.addEventListener('load', () => {
             item.classList.add('active');
             automaton.setBrushMode(item.dataset.mode);
         });
+    });
+
+    // Drop-Zone für Audiodateien
+    const dropZone = new DropZoneHandler(document.querySelector('#drop-zone'), async (file) => {
+        audioEngine.stop();
+        await audioEngine.loadFile(file);
+        audioEngine.play();
     });
 
     // Audio-Track Auswahl
