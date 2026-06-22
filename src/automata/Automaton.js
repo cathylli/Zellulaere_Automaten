@@ -17,6 +17,7 @@ export class Automaton {
         this.brushMode = 'spray';
         this.bpm = 120;
         this.initMouseEvents();
+        this.colors = { alive: '#ff4d8f', dead: '#423439', accent: '#ff4d8f', bg: '#1a0a12' }; // Standardfarben
 
         this.draw();
     }
@@ -46,13 +47,13 @@ export class Automaton {
 
     // Zeichnet das Gitter auf die Canvas
     draw() {
-        this.ctx.fillStyle = '#423439'; // Hintergrundfarbe
+        this.ctx.fillStyle = this.colors.dead; // Hintergrundfarbe
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height); // Canvas leeren
         
         for (let r = 0; r < this.rows; r++) {
             for (let c = 0; c < this.cols; c++) {
                 if (this.grid[r][c]) {
-                    this.ctx.fillStyle = '#ff4d8f'; // Farbe für lebende Zellen
+                    this.ctx.fillStyle = this.colors.alive; // Farbe für lebende Zellen
                     this.ctx.fillRect(
                         c * this.cellsize, 
                         r * this.cellsize, 

@@ -3,6 +3,7 @@ import { AudioEngine } from './audio/AudioEngine.js';
 import { DropZoneHandler } from './ui/DropZoneHandler.js';
 import  Visualizer  from './audio/AudioVisualizer.js';
 import Analyzer from './audio/Analyzer.js';
+import { apply } from './ui/ThemeManager.js';
 
 const audioEngine = new AudioEngine();
 const testTrackUrl = 'public/audio/groovy-vibe.mp3';
@@ -108,8 +109,16 @@ window.addEventListener('load', () => {
     const visualizer = new Visualizer(analyzer, visualizerCanvas);
 
 
-
-
+    // Theme Manager
+    const themeButtons = document.querySelectorAll('.theme-item');
+    themeButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const themeKey = button.dataset.color;
+            apply(themeKey, automaton);
+            themeButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+        });
+    });
 
 
     /**
