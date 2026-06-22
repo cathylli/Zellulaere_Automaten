@@ -1,6 +1,8 @@
 import { Automaton } from './automata/Automaton.js';
 import { AudioEngine } from './audio/AudioEngine.js';
 import { DropZoneHandler } from './ui/DropZoneHandler.js';
+import  Visualizer  from './audio/AudioVisualizer.js';
+import Analyzer from './audio/Analyzer.js';
 
 const audioEngine = new AudioEngine();
 const testTrackUrl = 'public/audio/groovy-vibe.mp3';
@@ -90,4 +92,27 @@ window.addEventListener('load', () => {
         audioEngine.stop();
         playBtn.innerText = 'Play';
     });
+
+    // Vorbereitung für den Audio-Visualizer
+    audioEngine.init();
+    const audioContext = audioEngine.ctx;
+    const analyzer = new Analyzer(audioContext);
+    audioEngine.analyzerNode = analyzer.analyzerNode;
+
+    const lowShelfCutoff = 500;
+    const highShelfCutoff = 5000;
+
+    // Audio-Visualizer
+    const visualizerCanvas = document.getElementById('visualizer-canvas');
+    const visualizer = new Visualizer(analyzer, visualizerCanvas);
+
+    /**
+     * Main draw loop
+     */
+    function visualize() {
+    requestAnimationFrame(visualize);
+    visualizer.draw(lowShelfCutoff, highShelfCutoff);
+    }
+
+    visualize();
 });

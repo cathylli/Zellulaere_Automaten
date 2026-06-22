@@ -8,6 +8,7 @@ export class AudioEngine {
         this.isPlaying = false;
         this.playbackRate = 1.0;
         this.volume = 0.5;
+        this.analyzerNode = null;
     }
 
     // Initialisiert den AudioContext nach einem Klick im UI
@@ -67,9 +68,14 @@ export class AudioEngine {
         this.setVolume(this.volume);
         this.setPlaybackRate(this.playbackRate);
 
-        // Kette verknüpfen: Quelle -> Lautstärke -> Lautsprecher (destination)
+        // Kette verknüpfen: Quelle -> Lautstärke -> [Analyzer] -> Lautsprecher
         this.sourceNode.connect(this.gainNode);
-        this.gainNode.connect(this.ctx.destination);
+        if (this.analyzerNode) {
+            this.gainNode.connect(this.analyzerNode);
+            this.analyzerNode.connect(this.ctx.destination);
+        } else {
+            this.gainNode.connect(this.ctx.destination);
+        }
 
         this.sourceNode.start(0);
         this.isPlaying = true;
