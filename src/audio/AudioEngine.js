@@ -82,8 +82,11 @@ export class AudioEngine {
         console.log("Wiedergabe gestartet.");
 
         // Event feuern, wenn der Track von alleine zu Ende ist
-        this.sourceNode.onended = () => {
-            this.isPlaying = false;
+        // node-Referenz festhalten, damit ein späterer stop() nicht fälschlicherweise
+        // isPlaying auf false setzt, obwohl bereits ein neuer Track gestartet wurde
+        const node = this.sourceNode;
+        node.onended = () => {
+            if (this.sourceNode === node) this.isPlaying = false;
         };
     }
 

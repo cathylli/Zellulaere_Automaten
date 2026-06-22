@@ -67,6 +67,7 @@ window.addEventListener('load', () => {
             audioEngine.stop();
             await audioEngine.loadFile(item.dataset.audio);
             audioEngine.play();
+            playBtn.innerText = 'Spielt!';
         });
     });
 
@@ -75,7 +76,7 @@ window.addEventListener('load', () => {
     const stopBtn = document.getElementById('btn-stop');
 
     playBtn.addEventListener('click', async () => {
-        audioEngine.init();
+        if (audioEngine.isPlaying) return;
         if (!audioEngine.audioBuffer) {
             playBtn.innerText = 'Lädt...';
             const success = await audioEngine.loadFile(testTrackUrl);
@@ -110,8 +111,8 @@ window.addEventListener('load', () => {
      * Main draw loop
      */
     function visualize() {
-    requestAnimationFrame(visualize);
-    visualizer.draw(lowShelfCutoff, highShelfCutoff);
+        requestAnimationFrame(visualize);
+        visualizer.draw(lowShelfCutoff, highShelfCutoff);
     }
 
     visualize();
