@@ -1,6 +1,8 @@
 import { Automaton } from './automata/Automaton.js';
 import { AudioEngine } from './audio/AudioEngine.js';
 import { DropZoneHandler } from './ui/DropZoneHandler.js';
+import  Visualizer  from './audio/AudioVisualizer.js';
+import Analyzer from './audio/Analyzer.js';
 
 const audioEngine = new AudioEngine();
 const testTrackUrl = 'public/audio/groovy-vibe.mp3';
@@ -65,6 +67,7 @@ window.addEventListener('load', () => {
             audioEngine.stop();
             await audioEngine.loadFile(item.dataset.audio);
             audioEngine.play();
+            playBtn.innerText = 'Spielt!';
         });
     });
 
@@ -73,7 +76,7 @@ window.addEventListener('load', () => {
     const stopBtn = document.getElementById('btn-stop');
 
     playBtn.addEventListener('click', async () => {
-        audioEngine.init();
+        if (audioEngine.isPlaying) return;
         if (!audioEngine.audioBuffer) {
             playBtn.innerText = 'Lädt...';
             const success = await audioEngine.loadFile(testTrackUrl);
@@ -90,4 +93,37 @@ window.addEventListener('load', () => {
         audioEngine.stop();
         playBtn.innerText = 'Play';
     });
+
+    // Vorbereitung für den Audio-Visualizer
+    audioEngine.init();
+    const audioContext = audioEngine.ctx;
+    const analyzer = new Analyzer(audioContext);
+    audioEngine.analyzerNode = analyzer.analyzerNode;
+
+    const lowShelfCutoff = 500;
+    const highShelfCutoff = 5000;
+
+    // Audio-Visualizer
+    const visualizerCanvas = document.getElementById('visualizer-canvas');
+    const visualizer = new Visualizer(analyzer, visualizerCanvas);
+
+
+
+
+
+
+    /**
+     * Main draw loop
+     */
+    function visualize() {
+        requestAnimationFrame(visualize);
+        visualizer.draw(lowShelfCutoff, highShelfCutoff);
+
+        //Energy für Automaton nutzen
+        const energy = analyzer.getEnergy();
+        //TODO 4: Nutze die Energie, um die Geschwindigkeit des Automaten zu steuern
+        //automaton.setBPM(100 + energy * 10); // Beispiel: BPM zwischen 100 und 1100 basierend auf der Energie
+    }
+
+    visualize();
 });

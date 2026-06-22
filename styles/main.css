@@ -154,3 +154,11 @@ body {
 .drop-zone p {
   pointer-events: none;
 }
+
+#visualizer-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-top: 8px;
+  border: 1px solid #6b2040;
+}

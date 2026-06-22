@@ -8,6 +8,7 @@ export class AudioEngine {
         this.isPlaying = false;
         this.playbackRate = 1.0;
         this.volume = 0.5;
+        this.analyzerNode = null;
     }
 
     // Initialisiert den AudioContext nach einem Klick im UI
@@ -67,17 +68,25 @@ export class AudioEngine {
         this.setVolume(this.volume);
         this.setPlaybackRate(this.playbackRate);
 
-        // Kette verknüpfen: Quelle -> Lautstärke -> Lautsprecher (destination)
+        // Kette verknüpfen: Quelle -> Lautstärke -> [Analyzer] -> Lautsprecher
         this.sourceNode.connect(this.gainNode);
-        this.gainNode.connect(this.ctx.destination);
+        if (this.analyzerNode) {
+            this.gainNode.connect(this.analyzerNode);
+            this.analyzerNode.connect(this.ctx.destination);
+        } else {
+            this.gainNode.connect(this.ctx.destination);
+        }
 
         this.sourceNode.start(0);
         this.isPlaying = true;
         console.log("Wiedergabe gestartet.");
 
         // Event feuern, wenn der Track von alleine zu Ende ist
-        this.sourceNode.onended = () => {
-            this.isPlaying = false;
+        // node-Referenz festhalten, damit ein späterer stop() nicht fälschlicherweise
+        // isPlaying auf false setzt, obwohl bereits ein neuer Track gestartet wurde
+        const node = this.sourceNode;
+        node.onended = () => {
+            if (this.sourceNode === node) this.isPlaying = false;
         };
     }
 
