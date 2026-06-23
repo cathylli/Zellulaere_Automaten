@@ -14,6 +14,7 @@ window.addEventListener('load', () => {
     canvas.height = canvas.offsetHeight;
 
     const automaton = new Automaton(canvas, 'highLife');
+    apply('rosa', automaton);
     automaton.setBPM(1000);
     automaton.start();
 

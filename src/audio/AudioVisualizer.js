@@ -38,9 +38,13 @@ class Visualizer {
     */
     drawFFT(data, canvas) {
 
-        // TODO 2: Copy contents of drawFFT function in assignment 6 (1 P)
+        // Farben aus Theme auslesen
+        const style = getComputedStyle(document.documentElement);
+        const bg = style.getPropertyValue('--bg').trim();
+        const accent = style.getPropertyValue('--accent').trim();
+
         const canvasContext = canvas.getContext("2d");
-        canvasContext.fillStyle = "#1a0a12";
+        canvasContext.fillStyle = bg;
         canvasContext.fillRect(0, 0, canvas.width, canvas.height);
 
         let barWidth = (canvas.width / data.length);
@@ -48,7 +52,7 @@ class Visualizer {
 
         for (let i = 0; i < data.length; ++i) {
             let barHeight = data[i]
-            canvasContext.fillStyle = "#ff4d8f";
+            canvasContext.fillStyle = accent;
             canvasContext.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
 
             x += barWidth;
@@ -83,8 +87,11 @@ class Visualizer {
         const average = sum / (higher - lower);
 
         // TODO 3.4: Draw rectangle without fill (3 P)
+        const style = getComputedStyle(document.documentElement);
+        const accent = style.getPropertyValue('--accent').trim();
+
         const canvasContext = this.canvas.getContext("2d");
-        canvasContext.strokeStyle = "#a06080";
+        canvasContext.strokeStyle = accent + '80';
         
         canvasContext.lineWidth = 2;
 
