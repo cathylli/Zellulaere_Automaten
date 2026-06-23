@@ -16,7 +16,9 @@ export class DropZoneHandler {
 
     input.addEventListener('change', (e) => {
         if (e.target.files.length){
-            this.onFileLoaded(e.target.files[0]);
+            const file = e.target.files[0];
+            if (!file.type.startsWith('audio/')) return;
+            this.onFileLoaded(file);
         }
     });
 
@@ -38,7 +40,9 @@ export class DropZoneHandler {
         const files = dt.files;
         
         if (files.length) {
-        this.onFileLoaded(files[0]);
+            const file = files[0];
+            if (!file.type.startsWith('audio/')) return;
+            this.onFileLoaded(file);
         }
     });
   }
