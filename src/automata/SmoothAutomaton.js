@@ -55,11 +55,12 @@ export class SmoothAutomaton extends Automaton {
         const loop = () => {
             if (!this.running) return;
             this.step();
+
             requestAnimationFrame(loop);
 
-            //für BPM-basierte Animation -> später hinzufügen. Muss eventuell multipliziert werden, weil sonst zu langsam
+            //für BPM-basierte Animation -> später hinzufügen. Muss eventuell noch häufiger multipliziert werden, weil sonst zu langsam
             //const interval = (60 / this.bpm) * 1000;
-            // setTimeout(loop, interval);
+            //setTimeout(loop, interval);
         };
         requestAnimationFrame(loop);
     }
