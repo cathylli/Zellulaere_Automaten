@@ -39,6 +39,24 @@ class Analyzer {
     const avgEnergy = buffer.reduce((sum, value) => sum + (value / 255) ** 2, 0) / buffer.length * 255;
     return avgEnergy;
   }
+
+  getBassLevel() {
+    const buffer = this.getBuffer();
+    const bufferLength = buffer.length;
+    const dataArray = new Uint8Array(bufferLength);
+    this.analyzerNode.getByteFrequencyData(dataArray);
+
+    // Nur die unteren 10% des Spektrums (für Bass-Bereich)
+    let bassRange = Math.floor(bufferLength * 0.1); 
+    let sum = 0;
+
+    for (let i = 0; i < bassRange; i++) {
+        sum += dataArray[i];
+    }
+
+    // Durchschnittswert des Bass-Bereichs (0 bis 255)
+    return sum / bassRange;
+}
 }
 
 export default Analyzer;

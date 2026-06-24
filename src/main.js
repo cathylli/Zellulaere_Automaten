@@ -158,12 +158,19 @@ window.addEventListener('load', () => {
         requestAnimationFrame(visualize);
         visualizer.draw(lowShelfCutoff, highShelfCutoff);
 
-        // Energy aus dem Song ableiten und auf den Automaten anwenden
+        
         if (audioEngine.isPlaying) {
+            // Energy aus dem Song ableiten und auf den Automaten anwenden
             const energy = analyzer.getEnergy(); // 0–255
             const multiplyer = 100; // Faktor, um die BPM zu erhöhen
-            const bpm = Math.max(60, energy * multiplyer);// BPM zwischen 30 und 300 begrenzen
+            const bpm = Math.max(60, energy * multiplyer);
             automaton.setBPM(bpm);
+
+            // Bass-Level aus dem Song ableiten und auf den Automaten anwenden
+            const bassLevel = analyzer.getBassLevel();
+            if (bassLevel > 150) { // Wenn der Bass-Level hoch ist, randomize das Gitter
+                automaton.randomizeGrid(0.01); // Zufällige Zellen aktivieren, wenn der Bass-Level hoch ist
+            }
         }
     }
 

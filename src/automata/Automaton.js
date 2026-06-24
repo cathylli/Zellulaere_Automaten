@@ -41,6 +41,30 @@ export class Automaton {
         );
     }
 
+    // Aktiviert wenige tote Nachbarzellen von bereits aktiven Zellen
+    randomizeGrid(density = 0.01) {
+        const next = this.grid.map(row => [...row]);
+        for (let r = 0; r < this.rows; r++) {
+            for (let c = 0; c < this.cols; c++) {
+                if (this.grid[r][c] === 1) {
+                    for (let dr = -1; dr <= 1; dr++) {
+                        for (let dc = -1; dc <= 1; dc++) {
+                            if (dr === 0 && dc === 0) continue;
+                            const nr = r + dr;
+                            const nc = c + dc;
+                            if (nr >= 0 && nr < this.rows && nc >= 0 && nc < this.cols) {
+                                if (this.grid[nr][nc] === 0 && Math.random() < density) {
+                                    next[nr][nc] = 1;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        this.grid = next;
+    }
+
     setBPM(newBPM){
         this.bpm = newBPM;
     }
