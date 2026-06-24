@@ -1,4 +1,6 @@
 import { Automaton } from './automata/Automaton.js';
+import { GradientAutomaton } from './automata/GradientAutomaton.js';
+import { SmoothAutomaton } from './automata/SmoothAutomaton.js';
 import { AudioEngine } from './audio/AudioEngine.js';
 import { DropZoneHandler } from './ui/DropZoneHandler.js';
 import  Visualizer  from './audio/AudioVisualizer.js';
@@ -13,10 +15,27 @@ window.addEventListener('load', () => {
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
 
-    const automaton = new Automaton(canvas, 'highLife');
-    apply('rosa', automaton);
+    let automaton = new Automaton(canvas, 'highLife');
+    let currentTheme = 'rosa';
+    apply(currentTheme, automaton);
     automaton.setBPM(1000);
     automaton.start();
+
+    function switchAutomaton(type) {
+        automaton.stop();
+        if (type === 'standard') {
+            automaton = new Automaton(canvas, 'highLife');
+            automaton.setBPM(1000);
+        } else if (type === 'gradient') {
+            automaton = new GradientAutomaton(canvas, 'highLife');
+            automaton.setBPM(1000);
+        } else if (type === 'smooth') {
+            automaton = new SmoothAutomaton(canvas);
+            automaton.setBPM(200);
+        }
+        apply(currentTheme, automaton);
+        automaton.start();
+    }
 
     // Resize
     let resizeTimeout;
@@ -110,12 +129,21 @@ window.addEventListener('load', () => {
     const visualizer = new Visualizer(analyzer, visualizerCanvas);
 
 
+    // Automat wechseln
+    document.querySelectorAll('.automaton-item').forEach(item => {
+        item.addEventListener('click', () => {
+            document.querySelectorAll('.automaton-item').forEach(i => i.classList.remove('active'));
+            item.classList.add('active');
+            switchAutomaton(item.dataset.automaton);
+        });
+    });
+
     // Theme Manager
     const themeButtons = document.querySelectorAll('.theme-item');
     themeButtons.forEach(button => {
         button.addEventListener('click', () => {
-            const themeKey = button.dataset.color;
-            apply(themeKey, automaton);
+            currentTheme = button.dataset.color;
+            apply(currentTheme, automaton);
             themeButtons.forEach(btn => btn.classList.remove('active'));
             button.classList.add('active');
         });
