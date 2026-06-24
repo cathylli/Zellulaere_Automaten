@@ -6,7 +6,6 @@ import { DropZoneHandler } from './ui/DropZoneHandler.js';
 import  Visualizer  from './audio/AudioVisualizer.js';
 import Analyzer from './audio/Analyzer.js';
 import { apply } from './ui/ThemeManager.js';
-import { BPMDetector } from './audio/BPMDetector.js';
 
 const audioEngine = new AudioEngine();
 const testTrackUrl = 'public/audio/groovy-vibe.mp3';
@@ -129,7 +128,6 @@ window.addEventListener('load', () => {
     const visualizerCanvas = document.getElementById('visualizer-canvas');
     const visualizer = new Visualizer(analyzer, visualizerCanvas);
 
-    const bpmDetector = new BPMDetector(analyzer);
 
 
     // Automat wechseln
@@ -160,10 +158,11 @@ window.addEventListener('load', () => {
         requestAnimationFrame(visualize);
         visualizer.draw(lowShelfCutoff, highShelfCutoff);
 
-        // BPM aus dem Song ableiten und auf den Automaten anwenden
+        // Energy aus dem Song ableiten und auf den Automaten anwenden
         if (audioEngine.isPlaying) {
-            const multiplyer = 100; // Faktor, um die BPM zu skalieren, falls nötig
-            const bpm = bpmDetector.update() * multiplyer;
+            const energy = analyzer.getEnergy(); // 0–255
+            const multiplyer = 100; // Faktor, um die BPM zu erhöhen
+            const bpm = Math.max(60, energy * multiplyer);// BPM zwischen 30 und 300 begrenzen
             automaton.setBPM(bpm);
         }
     }

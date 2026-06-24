@@ -35,7 +35,8 @@ class Analyzer {
   // "Energie" des Signals berechnen, um sie für die Steuerung des Automaten zu nutzen
   getEnergy() {
     const buffer = this.getBuffer();
-    const avgEnergy = buffer.reduce((sum, value) => sum + value, 0) / buffer.length;
+    // normalize each bin to 0–1, square it (exponential growth), then scale back to 0–255
+    const avgEnergy = buffer.reduce((sum, value) => sum + (value / 255) ** 2, 0) / buffer.length * 255;
     return avgEnergy;
   }
 }
