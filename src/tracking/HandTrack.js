@@ -197,7 +197,7 @@ export class Handtrack {
 
         // Slider nur verändern, wenn Daumen und Zeigefinger
         // relativ nah beieinander liegen
-        const isPinching = distance < 0.08;
+        const isPinching = distance < 0.05;
 
         if (!isPinching) return;
 

@@ -238,6 +238,22 @@ body {
     background-size: 24px 24px;
 }
 
+#tracking-status {
+    position: absolute;
+    left: 8px;
+    bottom: 8px;
+    z-index: 4;
+
+    padding: 4px 6px;
+
+    color: var(--accent);
+    background: var(--bg);
+    border: 1px solid var(--accent);
+
+    font-size: 9px;
+    letter-spacing: 1px;
+}
+
 #hand-video,
 #hand-canvas{
     position:absolute;
