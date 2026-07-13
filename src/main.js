@@ -96,6 +96,10 @@ window.addEventListener('load', () => {
     const playBtn = document.getElementById('btn-play');
     const stopBtn = document.getElementById('btn-stop');
 
+    // Speed
+    const speedSlider = document.getElementById('speed-slider');
+    const speedValue = document.getElementById('speed-value');
+
     playBtn.addEventListener('click', async () => {
         if (audioEngine.isPlaying) return;
         if (!audioEngine.audioBuffer) {
@@ -115,6 +119,13 @@ window.addEventListener('load', () => {
         playBtn.innerText = 'Play';
     });
 
+    speedSlider.addEventListener('input', (event) => {
+        const speed = Number(event.target.value);
+
+        audioEngine.setPlaybackRate(speed);
+        speedValue.textContent = `${speed.toFixed(2)}x`;
+    })
+
     // Vorbereitung für den Audio-Visualizer
     audioEngine.init();
     const audioContext = audioEngine.ctx;
@@ -127,8 +138,6 @@ window.addEventListener('load', () => {
     // Audio-Visualizer
     const visualizerCanvas = document.getElementById('visualizer-canvas');
     const visualizer = new Visualizer(analyzer, visualizerCanvas);
-
-
 
     // Automat wechseln
     document.querySelectorAll('.automaton-item').forEach(item => {

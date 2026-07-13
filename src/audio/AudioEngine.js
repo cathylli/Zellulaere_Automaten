@@ -110,8 +110,8 @@ export class AudioEngine {
 
     // Abspielgeschwindigkeit setzen (z.B. 0.5 für halbes Tempo, 2.0 für doppeltes Tempo)
     setPlaybackRate(value) {
-        this.playbackRate = Math.max(0.1, value);
-        if (this.sourceNode) {
+        this.playbackRate = Math.max(0.5, Math.min(2.0, Number(value)));
+        if (this.sourceNode && this.ctx) {
             this.sourceNode.playbackRate.setValueAtTime(this.playbackRate, this.ctx.currentTime);
         }
     }
