@@ -126,67 +126,80 @@ export class Automaton {
     initMouseEvents() {
         let isDrawing = false;
 
-        const handleMouse = (e) => {
+        const handleMouse = (event) => {
             const rect = this.canvas.getBoundingClientRect();
+
             const scaleX = this.canvas.width / rect.width;
             const scaleY = this.canvas.height / rect.height;
 
-            const mouseX = (e.clientX - rect.left) * scaleX;
-            const mouseY = (e.clientY - rect.top) * scaleY;
-            
-            const centerC = Math.floor(mouseX / this.cellsize);
-            const centerR = Math.floor(mouseY / this.cellsize);
-            
-            // Konfiguration je nach Modus dynmisch anpassen
-            let radius = 3;
-            let density = 0.35;
+            const canvasX =
+                (event.clientX - rect.left) * scaleX;
 
-            if (this.brushMode === 'heat' || this.brushMode === 'erase') {
-                radius = 4; // Feste Flächen dürfen ruhig etwas größer sein
-            } else if (this.brushMode === 'storm') {
-                radius = 2; // Storm ist extrem mächtig, lieber kleinerer Radius
-            }
+            const canvasY =
+                (event.clientY - rect.top) * scaleY;
 
-            for (let dr = -radius; dr <= radius; dr++) {
-                for (let dc = -radius; dc <= radius; dc++) {
-                    const r = centerR + dr;
-                    const c = centerC + dc;
-                    
-                    if (r >= 0 && r < this.rows && c >= 0 && c < this.cols) {
-                        // Kreis-Check
-                        if (dr * dr + dc * dc <= radius * radius) {
-                            
-                            // Logik-Weiche für die verschiedenen Modi
-                            switch (this.brushMode) {
-                                case 'spray':
-                                    if (Math.random() < density) {
-                                        this.grid[r][c] = 1;
-                                    }
-                                    break;
-                                    
-                                case 'heat':
-                                    this.grid[r][c] = 1; // Alles radikal einschalten
-                                    break;
-                                    
-                                case 'storm':
-                                    // Invertieren: 1 wird 0, 0 wird 1
-                                    this.grid[r][c] = this.grid[r][c] === 1 ? 0 : 1;
-                                    break;
-                                    
-                                case 'erase':
-                                    this.grid[r][c] = 0; // Alles ausschalten
-                                    break;
-                            }
-                        }
-                    }
-                }
-            }
-            this.draw();
+            this.applyBrushAt(canvasX, canvasY);
         };
 
         this.canvas.addEventListener('mousedown', (e) => { isDrawing = true; handleMouse(e); });
         this.canvas.addEventListener('mousemove', (e) => { if (isDrawing) handleMouse(e); });
         window.addEventListener('mouseup', () => isDrawing = false);
+    }
+
+    applyBrushAt(canvasX, canvasY) {
+        const centerC = Math.floor(canvasX / this.cellsize);
+        const centerR = Math.floor(canvasY / this.cellsize);
+
+        let radius = 3;
+        const density = 0.35;
+
+        if (this.brushMode === 'heat' || this.brushMode === 'erase') {
+            radius = 4;
+        } else if (this.brushMode === 'storm') {
+            radius = 2;
+        }
+
+        for (let dr = -radius; dr <= radius; dr++) {
+            for (let dc = -radius; dc <= radius; dc++) {
+                const r = centerR + dr;
+                const c = centerC + dc;
+
+                if (
+                    r < 0 ||
+                    r >= this.rows ||
+                    c < 0 ||
+                    c >= this.cols
+                ) {
+                    continue;
+                }
+
+                if (dr * dr + dc * dc > radius * radius) {
+                    continue;
+                }
+
+                switch (this.brushMode) {
+                    case 'spray':
+                        if (Math.random() < density) {
+                            this.grid[r][c] = 1;
+                        }
+                        break;
+
+                    case 'heat':
+                        this.grid[r][c] = 1;
+                        break;
+
+                    case 'storm':
+                        this.grid[r][c] = this.grid[r][c] ? 0 : 1;
+                        break;
+
+                    case 'erase':
+                        this.grid[r][c] = 0;
+                        break;
+                }
+            }
+        }
+
+        this.draw();
     }
 }
 

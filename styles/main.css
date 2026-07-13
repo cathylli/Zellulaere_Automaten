@@ -14,30 +14,6 @@ body {
     overflow: hidden;
 }
 
-#top-bar {
-    display: flex;
-    align-items: center;
-    gap: 24px;
-    padding: 8px 16px;
-    background: var(--bg);
-    border-bottom: 1px solid var(--accent);
-    flex-shrink: 0;
-}
-
-.tab {
-    background: none;
-    border: 1px solid var(--accent);
-    color: var(--accent);
-    padding: 4px 16px;
-    cursor: pointer;
-    font-family: inherit;
-}
-
-.tab.active {
-    border-color: var(--accent);
-    color: var(--accent);
-}
-
 #speed-control {
     margin-top: 12px;
     padding: 8px 0;
@@ -116,43 +92,205 @@ body {
     cursor: grabbing;
 }
 
-#tracking-container {
-    position: relative;
-    width: 100%;
-    margin-top: 12px;
-    border: 1px solid var(--accent);
-    background: var(--bg);
-    overflow: hidden;
-}
+/* HANDTRACKING */
 
-#hand-video {
-    display: block;
-    width: 100%;
-    transform: scaleX(-1);
-}
-
-#hand-canvas {
+#tracking-window {
     position: absolute;
-    inset: 0;
-    width: 100%;
-    height: auto;
-    pointer-events: none;
-    transform: scaleX(-1);
+    top: 20px;
+    right: 20px;
+
+    width: 360px;
+    height: 270px;
+
+    display: grid;
+    grid-template-rows: 30px 1fr 32px;
+
+    background: var(--bg);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+
+    overflow: hidden;
+    z-index: 20;
 }
 
-#btn-camera {
-    width: 100%;
-    background: var(--bg);
+#tracking-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding-left: 10px;
+
+    background: var(--surface);
+    border-bottom: 1px solid var(--accent);
+}
+
+#tracking-title {
+    font-size: 10px;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+#tracking-window-controls {
+    height: 100%;
+}
+
+#tracking-toggle {
+    width: 32px;
+    height: 100%;
+
     border: 0;
-    border-top: 1px solid var(--accent);
+    border-left: 1px solid var(--accent);
+
+    background: var(--bg);
     color: var(--accent);
-    padding: 6px;
+
     font-family: inherit;
     cursor: pointer;
 }
 
-#btn-camera:hover {
+#tracking-toggle:hover {
+    background: var(--accent);
+    color: var(--bg);
+}
+
+#tracking-content {
+    position: relative;
+    overflow: hidden;
+    background: var(--bg);
+}
+
+#hand-video,
+#hand-canvas {
+    position: absolute;
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+    transform: scaleX(-1);
+}
+
+#hand-video {
+    z-index: 1;
+}
+
+#hand-canvas {
+    z-index: 2;
+    pointer-events: none;
+}
+
+#camera-placeholder {
+    position: absolute;
+    inset: 0;
+
+    display: grid;
+    place-items: center;
+
+    color: var(--accent);
+    font-size: 10px;
+    letter-spacing: 2px;
+
+    z-index: 0;
+}
+
+#tracking-status {
+    position: absolute;
+    left: 8px;
+    bottom: 8px;
+
+    padding: 3px 5px;
+
+    background: var(--bg);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+
+    font-size: 8px;
+
+    z-index: 3;
+}
+
+#btn-camera {
+    border: 0;
+    border-top: 1px solid var(--accent);
+
     background: var(--surface);
+    color: var(--accent);
+
+    font-family: inherit;
+    font-size: 10px;
+    letter-spacing: 1px;
+
+    cursor: pointer;
+}
+
+#btn-camera:hover,
+#btn-camera.is-active {
+    background: var(--accent);
+    color: var(--bg);
+}
+
+/* MINIMIERT */
+
+#tracking-window.minimized {
+    width: 170px;
+    height: 30px;
+
+    grid-template-rows: 30px;
+}
+
+#tracking-window.minimized #tracking-content,
+#tracking-window.minimized #btn-camera {
+    display: none;
+}
+
+#tracking-window.minimized #tracking-header {
+    border-bottom: 0;
+}
+
+#tracking-window.minimized #tracking-toggle {
+    transform: rotate(180deg);
+}
+
+/* RECORD */
+
+#record-btn {
+    position: absolute;
+    right: 24px;
+    bottom: 24px;
+
+    width: 48px;
+    height: 48px;
+
+    display: grid;
+    place-items: center;
+
+    border: 1px solid var(--accent);
+    border-radius: 50%;
+
+    background: var(--bg);
+    color: var(--accent);
+
+    cursor: pointer;
+    z-index: 25;
+}
+
+#record-btn:hover {
+    background: var(--surface);
+}
+
+.record-dot {
+    width: 14px;
+    height: 14px;
+
+    display: block;
+
+    background: var(--accent);
+    border-radius: 50%;
+}
+
+#record-btn.is-recording .record-dot {
+    border-radius: 2px;
 }
 
 #app {

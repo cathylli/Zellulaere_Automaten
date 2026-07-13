@@ -6,6 +6,7 @@ import { DropZoneHandler } from './ui/DropZoneHandler.js';
 import  Visualizer  from './audio/AudioVisualizer.js';
 import Analyzer from './audio/Analyzer.js';
 import { apply } from './ui/ThemeManager.js';
+import { Handtrack } from './tracking/HandTrack.js';
 
 const audioEngine = new AudioEngine();
 const testTrackUrl = 'public/audio/groovy-vibe.mp3';
@@ -158,6 +159,88 @@ window.addEventListener('load', () => {
             button.classList.add('active');
         });
     });
+
+    // Handtrack-Window
+    const trackingWindow = document.getElementById('tracking-window');
+    const trackingToggle = document.getElementById('tracking-toggle');
+
+    trackingToggle.addEventListener('click', () => {
+        const isMinimized =
+            trackingWindow.classList.toggle('minimized');
+
+        trackingToggle.setAttribute(
+            'aria-label',
+            isMinimized
+                ? 'Kamerafenster öffnen'
+                : 'Kamerafenster minimieren'
+        );
+    });
+
+    // Handtracking
+    const handVideo = document.getElementById('hand-video');
+    const handCanvas = document.getElementById('hand-canvas');
+
+    const cameraButton = document.getElementById('btn-camera');
+    const cameraPlaceholder = document.getElementById('camera-placeholder');
+
+
+    const handtrack = new Handtrack(
+        handVideo,
+        handCanvas,
+        () => automaton,
+        speedSlider
+    );
+
+    let cameraIsRunning = false;
+
+    cameraButton.addEventListener('click', async () => {
+        cameraButton.disabled = true;
+
+        try {
+            if (!cameraIsRunning) {
+                cameraButton.textContent =
+                    'KAMERA WIRD GESTARTET ...';
+
+                await handtrack.start();
+
+                cameraIsRunning = true;
+
+                cameraButton.classList.add('is-active');
+                cameraButton.textContent = 'KAMERA STOPPEN';
+
+                cameraPlaceholder.style.display = 'none';
+            } else {
+                handtrack.stop();
+
+                cameraIsRunning = false;
+
+                cameraButton.classList.remove('is-active');
+                cameraButton.textContent = 'KAMERA STARTEN';
+
+                cameraPlaceholder.style.display = '';
+            }
+        } catch (error) {
+            cameraIsRunning = false;
+
+            cameraButton.classList.remove('is-active');
+            cameraButton.textContent = 'KAMERA-FEHLER';
+
+            cameraPlaceholder.style.display = '';
+
+            console.error(error);
+        } finally {
+            cameraButton.disabled = false;
+        }
+    });
+
+    // Record-Zustand
+    // Aufnahme beginn
+    // recordButton.classList.add('is-recording');
+    // recordButton.setAttribute('aria-label', 'Aufnahme stoppen');
+
+    // // Aufnahme enden
+    // recordButton.classList.remove('is-recording');
+    // recordButton.setAttribute('aria-label', 'Aufnahme starten');
 
 
     /**

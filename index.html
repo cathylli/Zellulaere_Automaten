@@ -50,17 +50,6 @@
                     <p>Datei hierher ziehen oder <span>klicken</span></p>
                 </div>
                 <canvas id="visualizer-canvas" width="512" height="120"></canvas>
-                <div id="tracking-container">
-                    <video
-                        id="hand-video"
-                        autoplay
-                        muted
-                        playsinline
-                    ></video>
-
-                    <canvas id="hand-canvas"></canvas>
-                    <button id="btn-camera">Kamera starten</button>
-                </div>
             </section>
 
             <section>
@@ -97,7 +86,54 @@
         <main id="main-display">
             <canvas id="canvas-1"></canvas>
         </main>
+
+        <div id="tracking-window">
+
+            <div id="tracking-header">
+                <span id="tracking-title">HAND TRACKING</span>
+                <div id="tracking-window-controls">
+                    <button 
+                        id="tracking-toggle"
+                        type="button"
+                        aria-label="Kamerafenster minimieren"
+                    >
+                        ◀
+                    </button>
+                </div>  
+            </div>
+
+            <div id="tracking-content">
+                <video  
+                    id="hand-video"
+                    autoplay
+                    muted
+                    playsinline
+                ></video>
+
+                <canvas id="hand-canvas"></canvas>
+
+                <div id="camera-placeholder">
+                    <span>NO CAMERA SIGNAL</span>
+                </div>
+
+                <div id="tracking-status">
+                    LEFT: SPEED | RIGHT: BRUSH
+                </div>
+            </div>
+
+            <button id="btn-camera" type="button">
+                KAMERA STARTEN
+            </button>
+        </div>
+
+        <button 
+            id="record-btn"
+            type="button"
+            aria-label="Aufnahme starten"
+        >
+            <span class="record-dot"></span>
+        </button>
     </div>
     <script type="module" src="src/main.js"></script>
 </body>
-</html>>
+</html>
