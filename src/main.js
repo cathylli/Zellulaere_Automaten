@@ -187,7 +187,8 @@ window.addEventListener('load', () => {
     const handtrack = new Handtrack(
         handVideo,
         handCanvas,
-        () => automaton
+        () => automaton,
+        speedSlider
     );
 
     let cameraIsRunning = false;

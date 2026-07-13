@@ -5,12 +5,15 @@ import {
 } from '@mediapipe/tasks-vision';
 
 export class Handtrack {
-    constructor(video, canvas, getAutomaton) {
+    constructor(video, canvas, getAutomaton, speedSlider) {
         this.video = video;
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
 
         this.getAutomaton = getAutomaton;
+
+        this.speedSlider = speedSlider;
+        this.smoothedSpeed = Number(speedSlider.value);
 
         this.landmarker = null;
         this.drawer = null;
@@ -106,15 +109,15 @@ export class Handtrack {
                 performance.now()
             );
 
-            this.drawHand(result);
-            this.moveBrush(result);
+            this.drawHands(result);
+            this.controlHands(result);
         }
 
         this.animationId =
             requestAnimationFrame(() => this.track());
     }
 
-    drawHand(result) {
+    drawHands(result) {
         this.ctx.clearRect(
             0,
             0,
@@ -122,36 +125,56 @@ export class Handtrack {
             this.canvas.height
         );
 
-        const hand = result.landmarks?.[0];
-
-        if (!hand) return;
+        if (!result.landmarks?.length) return;
 
         const accent = getComputedStyle(
             document.documentElement
         ).getPropertyValue('--accent').trim();
 
-        this.drawer.drawConnectors(
-            hand,
-            HandLandmarker.HAND_CONNECTIONS,
-            {
-                color: accent,
-                lineWidth: 3
-            }
-        );
+        for (const hand of result.landmarks) {
+            this.drawer.drawConnectors(
+                hand,
+                HandLandmarker.HAND_CONNECTIONS,
+                {
+                    color: accent,
+                    lineWidth: 3
+                }
+            );
 
-        this.drawer.drawLandmarks(hand, {
-            color: accent,
-            fillColor: accent,
-            radius: 3
-        });
+            this.drawer.drawLandmarks(hand, {
+                color: accent,
+                fillColor: accent,
+                radius: 3
+            });
+        }
     }
 
-    moveBrush(result) {
-        const hand = result.landmarks?.[0];
+    controlHands(result) {
+        if (!result.landmarks?.length) return;
+
+        const handednessList =
+            result.handedness ?? result.handednesses;
+
+        for (let i = 0; i < result.landmarks.length; i++) {
+            const hand = result.landmarks[i];
+
+            const handedness =
+                handednessList?.[i]?.[0]?.categoryName;
+
+            if (handedness === 'Right') {
+                this.moveBrush(hand);
+            } else if (handedness === 'Left') {
+                this.controlSpeed(hand);
+            }
+        }
+    }
+
+    moveBrush(hand) {
         const automaton = this.getAutomaton();
 
-        if (!hand || !automaton) return;
+        if (!automaton) return;
 
+        // Punkt 8 = Zeigefingerspitze
         const fingerTip = hand[8];
 
         const canvasX =
@@ -161,5 +184,42 @@ export class Handtrack {
             fingerTip.y * automaton.canvas.height;
 
         automaton.applyBrushAt(canvasX, canvasY);
+    }
+
+    controlSpeed(hand) {
+        const thumbTip = hand[4];
+        const indexTip = hand[8];
+
+        const distance = Math.hypot(
+            thumbTip.x - indexTip.x,
+            thumbTip.y - indexTip.y
+        );
+
+        // Slider nur verändern, wenn Daumen und Zeigefinger
+        // relativ nah beieinander liegen
+        const isPinching = distance < 0.08;
+
+        if (!isPinching) return;
+
+        const mirroredX = 1 - indexTip.x;
+
+        const min = Number(this.speedSlider.min);
+        const max = Number(this.speedSlider.max);
+
+        const newSpeed =
+            min + mirroredX * (max - min);
+
+        this.smoothedSpeed =
+            this.smoothedSpeed * 0.8 +
+            newSpeed * 0.2;
+
+        this.speedSlider.value =
+            this.smoothedSpeed.toFixed(2);
+
+        this.speedSlider.dispatchEvent(
+            new Event('input', {
+                bubbles: true
+            })
+        );
     }
 }
