@@ -118,152 +118,81 @@ body {
 
 /* HANDTRACKING */
 
-#tracking-window{
-    position:absolute;
-    right:20px;
-    top:20px;
+#tracking-window {
+    position: absolute;
+    top: 20px;
+    right: 20px;
 
-    width: min(400px, calc(100vw - 210px));
-    height: 300px;
+    width: 360px;
+    height: 270px;
 
     display: grid;
-    grid-template-rows: 32px 1fr 34px;
+    grid-template-rows: 30px 1fr 32px;
 
-    color: var(--accent);
     background: var(--bg);
     border: 1px solid var(--accent);
-
-    box-shadow:
-        5px 5px 0 var(--surface),
-        0 0 18px color-mix(in srgb, var(--accent) 15%, transparent);
+    color: var(--accent);
 
     overflow: hidden;
     z-index: 20;
-
-    transition:
-        width 0.25s ease,
-        height 0.25s ease,
-        transform 0.25s ease,
-        box-shadow 0.25s ease;
 }
 
-#tracking-header{
-    position: relative;
-
+#tracking-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
 
-    min-width: 0;
     padding-left: 10px;
 
     background: var(--surface);
     border-bottom: 1px solid var(--accent);
-
-    user-select: none;
-    z-index: 5;
 }
 
 #tracking-title {
-    overflow: hidden;
-
     font-size: 10px;
     font-weight: bold;
     letter-spacing: 2px;
-    white-space: nowrap;
-    text-overflow: ellipsis;
 }
 
 #tracking-window-controls {
-    display: flex;
-    align-self: stretch;
+    height: 100%;
 }
 
 #tracking-toggle {
     width: 32px;
     height: 100%;
 
-    display: grid;
-    place-items: center;
-
-    appearance: none;
     border: 0;
     border-left: 1px solid var(--accent);
 
-    color: var(--accent);
     background: var(--bg);
+    color: var(--accent);
 
     font-family: inherit;
-    font-size: 12px;
-
     cursor: pointer;
-
-    transition:
-        color 0.15s ease,
-        background 0.15s ease;
 }
 
 #tracking-toggle:hover {
-    color: var(--bg);
     background: var(--accent);
+    color: var(--bg);
 }
-
-#tracking-toggle:focus-visible,
-#btn-camera:focus-visible,
-#record-btn:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: -3px;
-}
-
-/* Bereich für Video und Overlay */
 
 #tracking-content {
     position: relative;
-    min-width: 0;
-    min-height: 0;
-
     overflow: hidden;
-    background:
-        linear-gradient(
-            color-mix(in srgb, var(--accent) 6%, transparent) 1px,
-            transparent 1px
-        ),
-        linear-gradient(
-            90deg,
-            color-mix(in srgb, var(--accent) 6%, transparent) 1px,
-            transparent 1px
-        ),
-        var(--bg);
-
-    background-size: 24px 24px;
-}
-
-#tracking-status {
-    position: absolute;
-    left: 8px;
-    bottom: 8px;
-    z-index: 4;
-
-    padding: 4px 6px;
-
-    color: var(--accent);
     background: var(--bg);
-    border: 1px solid var(--accent);
-
-    font-size: 9px;
-    letter-spacing: 1px;
 }
 
 #hand-video,
-#hand-canvas{
-    position:absolute;
-    inset:0;
+#hand-canvas {
+    position: absolute;
+    inset: 0;
 
-    width:100%;
-    height:100%;
+    width: 100%;
+    height: 100%;
 
-    object-fit:cover;
-    transform:scaleX(-1);
+    object-fit: cover;
+    transform: scaleX(-1);
 }
 
 #hand-video {
@@ -275,8 +204,6 @@ body {
     pointer-events: none;
 }
 
-/* wird angezeigt, solange keine Kamera läuft */
-
 #camera-placeholder {
     position: absolute;
     inset: 0;
@@ -284,67 +211,56 @@ body {
     display: grid;
     place-items: center;
 
-    z-index: 0;
-    pointer-events: none;
-}
-
-#camera-placeholder span {
-    padding: 6px 10px;
-
     color: var(--accent);
-    background: var(--bg);
-    border: 1px solid var(--accent);
-
     font-size: 10px;
     letter-spacing: 2px;
-    opacity: 0.7;
+
+    z-index: 0;
 }
 
+#tracking-status {
+    position: absolute;
+    left: 8px;
+    bottom: 8px;
 
-/* Kamerastart unten im Fenster */
+    padding: 3px 5px;
+
+    background: var(--bg);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+
+    font-size: 8px;
+
+    z-index: 3;
+}
 
 #btn-camera {
-    width: 100%;
-    height: 34px;
-
-    appearance: none;
     border: 0;
     border-top: 1px solid var(--accent);
 
-    color: var(--accent);
     background: var(--surface);
+    color: var(--accent);
 
     font-family: inherit;
     font-size: 10px;
-    font-weight: bold;
-    letter-spacing: 2px;
+    letter-spacing: 1px;
 
     cursor: pointer;
-
-    transition:
-        color 0.15s ease,
-        background 0.15s ease;
 }
 
-#btn-camera:hover {
-    color: var(--bg);
-    background: var(--accent);
-}
-
+#btn-camera:hover,
 #btn-camera.is-active {
-    color: var(--bg);
     background: var(--accent);
+    color: var(--bg);
 }
 
+/* MINIMIERT */
 
-/* MINIMIEREN ZUSTAND */
 #tracking-window.minimized {
-    width: 176px;
-    height: 32px;
+    width: 170px;
+    height: 30px;
 
-    grid-template-rows: 32px;
-
-    box-shadow: 3px 3px 0 var(--surface);
+    grid-template-rows: 30px;
 }
 
 #tracking-window.minimized #tracking-content,
@@ -360,95 +276,45 @@ body {
     transform: rotate(180deg);
 }
 
-
-/* vollständig geschlossen */
-
-#tracking-window.closed {
-    display: none;
-}
-
-
-/* RECORD BUTTON */
+/* RECORD */
 
 #record-btn {
     position: absolute;
     right: 24px;
     bottom: 24px;
 
-    width: 58px;
-    height: 58px;
+    width: 48px;
+    height: 48px;
 
     display: grid;
     place-items: center;
 
-    appearance: none;
-
-    color: var(--accent);
-    background: var(--bg);
-
-    border: 2px solid var(--accent);
+    border: 1px solid var(--accent);
     border-radius: 50%;
 
-    box-shadow:
-        0 0 0 4px var(--bg),
-        0 0 0 5px var(--accent);
+    background: var(--bg);
+    color: var(--accent);
 
     cursor: pointer;
     z-index: 25;
-
-    transition:
-        transform 0.15s ease,
-        background 0.15s ease,
-        box-shadow 0.15s ease;
 }
 
 #record-btn:hover {
-    transform: scale(1.07);
     background: var(--surface);
 }
 
 .record-dot {
-    width: 17px;
-    height: 17px;
+    width: 14px;
+    height: 14px;
 
     display: block;
 
     background: var(--accent);
     border-radius: 50%;
-
-    transition:
-        width 0.15s ease,
-        height 0.15s ease,
-        border-radius 0.15s ease;
-}
-
-
-/* Zustand während der Aufnahme */
-
-#record-btn.is-recording {
-    animation: recording-pulse 1.1s infinite;
 }
 
 #record-btn.is-recording .record-dot {
-    width: 18px;
-    height: 18px;
-    border-radius: 3px;
-}
-
-@keyframes recording-pulse {
-    0%,
-    100% {
-        box-shadow:
-            0 0 0 4px var(--bg),
-            0 0 0 5px var(--accent);
-    }
-
-    50% {
-        box-shadow:
-            0 0 0 4px var(--bg),
-            0 0 0 9px
-                color-mix(in srgb, var(--accent) 35%, transparent);
-    }
+    border-radius: 2px;
 }
 
 #app {
