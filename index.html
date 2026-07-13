@@ -17,15 +17,50 @@
                     <li class ="audio-item" data-audio="public/audio/groovy-vibe.mp3">Track 1</li>
                     <li class ="audio-item" data-audio="public/audio/retro-lounge.mp3">Track 2</li>
                     <li class ="audio-item" data-audio="public/audio/sweet-life-luxury-chill.mp3">Track 3</li>
+                    <li class ="audio-item" data-audio="public/audio/Jeff_Mills_The Bells.wav">Track 4</li>
+                    <li class ="audio-item" data-audio="public/audio/Kraftwerk_Chrono.wav">Track 5</li>
+                    <li class ="audio-item" data-audio="public/audio/Land_of_8_Bits.wav">Track 6</li>
                 </ul>
                 <div id="audio-controls">
                     <button id="btn-play">Play</button>
                     <button id="btn-stop">Stop</button>
                 </div>
+                <div id="speed-control">
+                    <div class="speed-header">
+                        <span class="speed-title">SPEED</span>
+                        <span id="speed-value">1.00x</span>
+                    </div>
+
+                    <div class="speed-slider-row">
+                        <span class="speed-limit">0.5x</span>
+                        
+                        <input 
+                            id="speed-slider"
+                            type="range"
+                            min="0.5"
+                            max="2"
+                            step="0.01"
+                            value="1"
+                        >
+
+                        <span class="speed-limit">2.0x</span>
+                    </div>
+                </div>
                 <div id="drop-zone" class="drop-zone">
                     <p>Datei hierher ziehen oder <span>klicken</span></p>
                 </div>
                 <canvas id="visualizer-canvas" width="512" height="120"></canvas>
+                <div id="tracking-container">
+                    <video
+                        id="hand-video"
+                        autoplay
+                        muted
+                        playsinline
+                    ></video>
+
+                    <canvas id="hand-canvas"></canvas>
+                    <button id="btn-camera">Kamera starten</button>
+                </div>
             </section>
 
             <section>

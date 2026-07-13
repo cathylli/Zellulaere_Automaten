@@ -39,16 +39,120 @@ body {
 }
 
 #speed-control {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 11px;
+    margin-top: 12px;
+    padding: 8px 0;
     color: var(--accent);
 }
 
-#speed-control input {
-    accent-color: var(--accent);
-    width: 120px;
+.speed-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 6px;
+}
+
+.speed-title {
+    font-size: 10px;
+    letter-spacing: 2px;
+    font-weight: bold;
+}
+
+#speed-value {
+    min-width: 48px;
+    padding: 2px 5px;
+    text-align: right;
+    font-size: 11px;
+    font-weight: bold;
+    color: var(--accent);
+    background: var(--bg);
+    border: 1px solid var(--accent);
+}
+
+.speed-slider-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 7px;
+}
+
+.speed-limit {
+    font-size: 9px;
+    color: var(--accent);
+    opacity: 0.8;
+    white-space: nowrap;
+}
+
+#speed-slider {
+    width: 100%;
+    height: 18px;
+    background: transparent;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+#speed-slider::-webkit-slider-runnable-track {
+    height: 3px;
+    background: var(--surface);
+    border: 1px solid var(--accent);
+}
+
+#speed-slider::-webkit-slider-thumb {
+    appearance: none;
+    -webkit-appearance: none;
+
+    width: 14px;
+    height: 14px;
+    margin-top: -6px;
+
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    background: var(--bg);
+    cursor: grab;
+}
+
+#speed-slider:active::-webkit-slider-thumb {
+    background: var(--accent);
+    cursor: grabbing;
+}
+
+#tracking-container {
+    position: relative;
+    width: 100%;
+    margin-top: 12px;
+    border: 1px solid var(--accent);
+    background: var(--bg);
+    overflow: hidden;
+}
+
+#hand-video {
+    display: block;
+    width: 100%;
+    transform: scaleX(-1);
+}
+
+#hand-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: auto;
+    pointer-events: none;
+    transform: scaleX(-1);
+}
+
+#btn-camera {
+    width: 100%;
+    background: var(--bg);
+    border: 0;
+    border-top: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 6px;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+#btn-camera:hover {
+    background: var(--surface);
 }
 
 #app {
