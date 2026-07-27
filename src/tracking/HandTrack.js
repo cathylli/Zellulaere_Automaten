@@ -1,13 +1,9 @@
-import {
-    FilesetResolver,
-    HandLandmarker,
-    DrawingUtils
-} from '@mediapipe/tasks-vision';
+import { FilesetResolver, HandLandmarker, DrawingUtils } from '@mediapipe/tasks-vision';
 
 export class Handtrack {
     constructor(video, canvas, getAutomaton, speedSlider) {
-        this.video = video;
-        this.canvas = canvas;
+        this.video = video; //Videoemelement für Kamerabild
+        this.canvas = canvas;   //Canvas, auf dem Handpunkte gezeichnet
         this.ctx = canvas.getContext('2d');
 
         this.getAutomaton = getAutomaton;
@@ -27,13 +23,14 @@ export class Handtrack {
     async initialize() {
         if (this.landmarker) return;
 
-        const vision = await FilesetResolver.forVisionTasks(
-            'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/wasm'
-        );
+        // Mediapipe WASM laden
+        const vision = await FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/wasm');
 
+        //Hand-Landmarker erstellen und konfigurieren
         this.landmarker =
             await HandLandmarker.createFromOptions(vision, {
                 baseOptions: {
+                    // Vorgefertigtes MediaPipe-Handmodell
                     modelAssetPath:
                         'https://storage.googleapis.com/mediapipe-models/' +
                         'hand_landmarker/hand_landmarker/float16/1/' +
@@ -42,21 +39,25 @@ export class Handtrack {
                 },
 
                 runningMode: 'VIDEO',
-                numHands: 2,
+                numHands: 2,    // max. 2 Hände
 
+                // Mindestwahrscheinlichkeiten 
                 minHandDetectionConfidence: 0.6,
                 minHandPresenceConfidence: 0.6,
                 minTrackingConfidence: 0.6
             });
 
+        // Zeichenwerkzeug für Landmark-Punkte und Handverbindungen
         this.drawer = new DrawingUtils(this.ctx);
     }
 
     async start() {
         if (this.running) return;
 
+        //MediaPipe-Modell laden
         await this.initialize();
 
+        // Zugriff auf Webcam anfordern
         this.stream =
             await navigator.mediaDevices.getUserMedia({
                 video: {
@@ -77,6 +78,7 @@ export class Handtrack {
         this.track();
     }
 
+    // Tracking beenden
     stop() {
         this.running = false;
 
@@ -98,10 +100,7 @@ export class Handtrack {
     track() {
         if (!this.running) return;
 
-        if (
-            this.video.readyState >= 2 &&
-            this.video.currentTime !== this.lastVideoTime
-        ) {
+        if (this.video.readyState >= 2 && this.video.currentTime !== this.lastVideoTime) {
             this.lastVideoTime = this.video.currentTime;
 
             const result = this.landmarker.detectForVideo(
@@ -113,8 +112,7 @@ export class Handtrack {
             this.controlHands(result);
         }
 
-        this.animationId =
-            requestAnimationFrame(() => this.track());
+        this.animationId = requestAnimationFrame(() => this.track());
     }
 
     drawHands(result) {
@@ -127,10 +125,10 @@ export class Handtrack {
 
         if (!result.landmarks?.length) return;
 
-        const accent = getComputedStyle(
-            document.documentElement
-        ).getPropertyValue('--accent').trim();
+        // Aktuelle Akzentfarbe von Thema
+        const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
 
+        //Linien zwischen Handpnkten zeichnen 
         for (const hand of result.landmarks) {
             this.drawer.drawConnectors(
                 hand,
@@ -141,6 +139,7 @@ export class Handtrack {
                 }
             );
 
+            // Landmark-Punke zeichnen 
             this.drawer.drawLandmarks(hand, {
                 color: accent,
                 fillColor: accent,
@@ -152,15 +151,16 @@ export class Handtrack {
     controlHands(result) {
         if (!result.landmarks?.length) return;
 
-        const handednessList =
-            result.handedness ?? result.handednesses;
+        // Mediapipe-Bezeichnung für linke oder rechte Hand holen
+        const handednessList = result.handedness ?? result.handednesses;
 
         for (let i = 0; i < result.landmarks.length; i++) {
             const hand = result.landmarks[i];
 
-            const handedness =
-                handednessList?.[i]?.[0]?.categoryName;
+            // Handzuordnung 
+            const handedness = handednessList?.[i]?.[0]?.categoryName;
 
+            // Rechts steuert Pinsel und Links Geschwindigkeit
             if (handedness === 'Right') {
                 this.moveBrush(hand);
             } else if (handedness === 'Left') {
@@ -177,12 +177,12 @@ export class Handtrack {
         // Punkt 8 = Zeigefingerspitze
         const fingerTip = hand[8];
 
-        const canvasX =
-            (1 - fingerTip.x) * automaton.canvas.width;
+        // X-Kooridinate spiegeln, weil Kamera gespiegelt 
+        const canvasX = (1 - fingerTip.x) * automaton.canvas.width;
 
-        const canvasY =
-            fingerTip.y * automaton.canvas.height;
+        const canvasY = fingerTip.y * automaton.canvas.height;
 
+        // Pinsel hier anwenden 
         automaton.applyBrushAt(canvasX, canvasY);
     }
 
@@ -190,13 +190,13 @@ export class Handtrack {
         const thumbTip = hand[4];
         const indexTip = hand[8];
 
+        // Abstand zwischen Daumen und Zeigefinger 
         const distance = Math.hypot(
             thumbTip.x - indexTip.x,
             thumbTip.y - indexTip.y
         );
 
-        // Slider nur verändern, wenn Daumen und Zeigefinger
-        // relativ nah beieinander liegen
+        // Pinch-Geste
         const isPinching = distance < 0.05;
 
         if (!isPinching) return;
@@ -206,15 +206,11 @@ export class Handtrack {
         const min = Number(this.speedSlider.min);
         const max = Number(this.speedSlider.max);
 
-        const newSpeed =
-            min + mirroredX * (max - min);
+        const newSpeed = min + mirroredX * (max - min);
 
-        this.smoothedSpeed =
-            this.smoothedSpeed * 0.8 +
-            newSpeed * 0.2;
+        this.smoothedSpeed = this.smoothedSpeed * 0.8 + newSpeed * 0.2;
 
-        this.speedSlider.value =
-            this.smoothedSpeed.toFixed(2);
+        this.speedSlider.value = this.smoothedSpeed.toFixed(2);
 
         this.speedSlider.dispatchEvent(
             new Event('input', {

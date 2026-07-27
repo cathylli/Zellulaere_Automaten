@@ -164,6 +164,7 @@ window.addEventListener('load', () => {
     const trackingWindow = document.getElementById('tracking-window');
     const trackingToggle = document.getElementById('tracking-toggle');
 
+    // Klick auf Pfeil minimiert oder öffnet
     trackingToggle.addEventListener('click', () => {
         const isMinimized =
             trackingWindow.classList.toggle('minimized');
@@ -183,7 +184,7 @@ window.addEventListener('load', () => {
     const cameraButton = document.getElementById('btn-camera');
     const cameraPlaceholder = document.getElementById('camera-placeholder');
 
-
+    // Handtracking-Objekt erstellen
     const handtrack = new Handtrack(
         handVideo,
         handCanvas,
@@ -193,6 +194,7 @@ window.addEventListener('load', () => {
 
     let cameraIsRunning = false;
 
+    // Kamera starten oder stoppen
     cameraButton.addEventListener('click', async () => {
         cameraButton.disabled = true;
 
