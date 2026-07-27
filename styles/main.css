@@ -92,6 +92,13 @@ body {
     cursor: grabbing;
 }
 
+#main-display {
+    position: relative;
+    flex: 1;
+    overflow: hidden;
+    height: 100%;
+}
+
 /* HANDTRACKING */
 
 #tracking-window {
@@ -253,6 +260,11 @@ body {
 }
 
 /* RECORD */
+
+#record-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
 
 #record-btn {
     position: absolute;
