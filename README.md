@@ -1,6 +1,6 @@
 # Zelluläre Automaten
 
-> Webbasiertes DJ/VJ-Tool mit verschiedenen zellulären Automaten, die dynamisch auf Musik reagieren sowie durch die Maus oder Handgesten manipuliert werden können.
+Webbasiertes DJ/VJ-Tool mit verschiedenen zellulären Automaten, die dynamisch auf Musik reagieren sowie durch die Maus oder Handgesten manipuliert werden können.
 
 Projekt im Rahmen des Moduls **Emerging Technologies** an der HTW Berlin.
 
