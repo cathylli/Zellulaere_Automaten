@@ -7,6 +7,7 @@ import  Visualizer  from './audio/AudioVisualizer.js';
 import Analyzer from './audio/Analyzer.js';
 import { apply } from './ui/ThemeManager.js';
 import { Handtrack } from './tracking/HandTrack.js';
+import { CanvasRecorder } from './recording/CanvasRecorder.js';
 
 const audioEngine = new AudioEngine();
 const testTrackUrl = 'public/audio/groovy-vibe.mp3';
@@ -15,6 +16,11 @@ window.addEventListener('load', () => {
     const canvas = document.getElementById('canvas-1');
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
+
+    const recordButton = document.getElementById('record-btn');
+    recordButton.disabled = true;
+
+    const canvasRecorder = new CanvasRecorder(canvas, recordButton, audioEngine);
 
     let automaton = new Automaton(canvas, 'highLife');
     let currentTheme = 'rosa';
@@ -33,6 +39,9 @@ window.addEventListener('load', () => {
         } else if (type === 'smooth') {
             automaton = new SmoothAutomaton(canvas);
             automaton.setBPM(200);
+        } else if (type === 'briansBrain') {
+            automaton = new Automaton(canvas, 'briansBrain');
+            automaton.setBPM(1000);
         }
         apply(currentTheme, automaton);
         automaton.start();
@@ -90,6 +99,7 @@ window.addEventListener('load', () => {
             await audioEngine.loadFile(item.dataset.audio);
             audioEngine.play();
             playBtn.innerText = 'Spielt!';
+            recordButton.disabled = false;
         });
     });
 
@@ -113,6 +123,7 @@ window.addEventListener('load', () => {
         }
         audioEngine.play();
         playBtn.innerText = 'Spielt!';
+        recordButton.disabled = false;
     });
 
     stopBtn.addEventListener('click', () => {
@@ -164,13 +175,11 @@ window.addEventListener('load', () => {
     const trackingWindow = document.getElementById('tracking-window');
     const trackingToggle = document.getElementById('tracking-toggle');
 
+    // Klick auf Pfeil minimiert oder öffnet
     trackingToggle.addEventListener('click', () => {
-        const isMinimized =
-            trackingWindow.classList.toggle('minimized');
+        const isMinimized = trackingWindow.classList.toggle('minimized');
 
-        trackingToggle.setAttribute(
-            'aria-label',
-            isMinimized
+        trackingToggle.setAttribute('aria-label', isMinimized
                 ? 'Kamerafenster öffnen'
                 : 'Kamerafenster minimieren'
         );
@@ -183,7 +192,7 @@ window.addEventListener('load', () => {
     const cameraButton = document.getElementById('btn-camera');
     const cameraPlaceholder = document.getElementById('camera-placeholder');
 
-
+    // Handtracking-Objekt erstellen
     const handtrack = new Handtrack(
         handVideo,
         handCanvas,
@@ -193,6 +202,7 @@ window.addEventListener('load', () => {
 
     let cameraIsRunning = false;
 
+    // Kamera starten oder stoppen
     cameraButton.addEventListener('click', async () => {
         cameraButton.disabled = true;
 
@@ -233,19 +243,7 @@ window.addEventListener('load', () => {
         }
     });
 
-    // Record-Zustand
-    // Aufnahme beginn
-    // recordButton.classList.add('is-recording');
-    // recordButton.setAttribute('aria-label', 'Aufnahme stoppen');
-
-    // // Aufnahme enden
-    // recordButton.classList.remove('is-recording');
-    // recordButton.setAttribute('aria-label', 'Aufnahme starten');
-
-
-    /**
-     * Main draw loop
-     */
+    // Main draw loop
     function visualize() {
         requestAnimationFrame(visualize);
         visualizer.draw(lowShelfCutoff, highShelfCutoff);

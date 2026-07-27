@@ -9,12 +9,17 @@ export class AudioEngine {
         this.playbackRate = 1.0;
         this.volume = 0.5;
         this.analyzerNode = null;
+
+        this.recordingDestination = null;
     }
 
     // Initialisiert den AudioContext nach einem Klick im UI
     init() {
         if (!this.ctx) {
             this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+
+            this.recordingDestination = this.ctx.createMediaStreamDestination();
+
             console.log("AudioContext erfolgreich initialisiert!");
         }
     }
@@ -70,11 +75,24 @@ export class AudioEngine {
 
         // Kette verknüpfen: Quelle -> Lautstärke -> [Analyzer] -> Lautsprecher
         this.sourceNode.connect(this.gainNode);
+
         if (this.analyzerNode) {
+            // Audio zuerst durch den Analyzer leiten
             this.gainNode.connect(this.analyzerNode);
+
+            // Normal über die Lautsprecher ausgeben
             this.analyzerNode.connect(this.ctx.destination);
+
+            // Zusätzlich in den Aufnahme-Audiostream leiten
+            this.analyzerNode.connect(
+                this.recordingDestination
+            );
         } else {
+            // Normal über die Lautsprecher ausgeben
             this.gainNode.connect(this.ctx.destination);
+
+            // Zusätzlich für die Aufnahme bereitstellen
+            this.gainNode.connect(this.recordingDestination);
         }
 
         this.sourceNode.start(0);
@@ -114,5 +132,9 @@ export class AudioEngine {
         if (this.sourceNode && this.ctx) {
             this.sourceNode.playbackRate.setValueAtTime(this.playbackRate, this.ctx.currentTime);
         }
+    }
+
+    getRecordingStream() {
+        return this.recordingDestination?.stream ?? null;
     }
 }

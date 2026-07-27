@@ -71,18 +71,17 @@ export class Automaton {
 
     // Zeichnet das Gitter auf die Canvas
     draw() {
-        this.ctx.fillStyle = this.colors.dead; // Hintergrundfarbe
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height); // Canvas leeren
+        this.ctx.fillStyle = this.colors.dead;
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         
         for (let r = 0; r < this.rows; r++) {
             for (let c = 0; c < this.cols; c++) {
-                if (this.grid[r][c]) {
-                    this.ctx.fillStyle = this.colors.alive; // Farbe für lebende Zellen
-                    this.ctx.fillRect(
-                        c * this.cellsize, 
-                        r * this.cellsize, 
-                        this.cellsize, 
-                        this.cellsize); // Zelle zeichnen
+                if (this.grid[r][c] === 1) {
+                    this.ctx.fillStyle = this.colors.alive;
+                    this.ctx.fillRect(c * this.cellsize, r * this.cellsize, this.cellsize, this.cellsize);
+                } else if (this.grid[r][c] === 2) {
+                    this.ctx.fillStyle = this.colors.accent + '88';
+                    this.ctx.fillRect(c * this.cellsize, r * this.cellsize, this.cellsize, this.cellsize);
                 }
             }
         }

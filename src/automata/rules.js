@@ -32,5 +32,20 @@ export const RULES = {
         const n = getNeighbors(grid, r, c, rows, cols);
         if (grid[r][c]) return 0;                            // Jede lebende Zelle stirbt sofort
         else return (n === 2) ? 1 : 0;                      // Geburt bei exakt 2
+    },
+    "briansBrain": (grid, r, c, rows, cols) => {
+    if (grid[r][c] === 1) return 2;  // aktiv → sterbend
+    if (grid[r][c] === 2) return 0;  // sterbend → tot
+    // tot → aktiv wenn genau 2 aktive Nachbarn
+    let active = 0;
+    for (let dr = -1; dr <= 1; dr++) {
+        for (let dc = -1; dc <= 1; dc++) {
+            if (dr === 0 && dc === 0) continue;
+            const nr = (r + dr + rows) % rows;
+            const nc = (c + dc + cols) % cols;
+            if (grid[nr][nc] === 1) active++;
+        }
     }
+    return active === 2 ? 1 : 0;
+},
 };
