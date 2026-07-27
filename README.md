@@ -180,6 +180,7 @@ Dateiname: `zellulaerer-automat-<Zeitstempel>.webm`
 ```
 zellulaere-automaten/
 ├── index.html                     # Grundgerüst: Sidebar, Canvas, Tracking-Fenster
+├── docs/                          # Screenshots für diese README
 ├── styles/
 │   └── main.css                   # Layout und Themes über CSS-Custom-Properties
 ├── public/
