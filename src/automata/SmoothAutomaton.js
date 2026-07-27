@@ -58,7 +58,7 @@ export class SmoothAutomaton extends Automaton {
 
             requestAnimationFrame(loop);
 
-            //für BPM-basierte Animation -> später hinzufügen. Muss eventuell noch häufiger multipliziert werden, weil sonst zu langsam
+            //für BPM-basierte Animation -> funktioniert allerdings nicht gut, da SmoothLife für einen Schritt relativ lange benötigt und die Animation von kontinuierlichen Updates lebt (also größere Intervalle führen zu "Ruckeln")
             //const interval = (60 / this.bpm) * 1000;
             //setTimeout(loop, interval);
         };

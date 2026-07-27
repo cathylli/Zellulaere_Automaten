@@ -14,26 +14,26 @@ body {
     overflow: hidden;
 }
 
-#speed-control {
+.control-group {
     margin-top: 12px;
     padding: 8px 0;
     color: var(--accent);
 }
 
-.speed-header {
+.control-header {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
     margin-bottom: 6px;
 }
 
-.speed-title {
+.control-title {
     font-size: 10px;
     letter-spacing: 2px;
     font-weight: bold;
 }
 
-#speed-value {
+.control-value {
     min-width: 48px;
     padding: 2px 5px;
     text-align: right;
@@ -44,21 +44,47 @@ body {
     border: 1px solid var(--accent);
 }
 
-.speed-slider-row {
+.toggle-button {
+    min-width: 48px;
+    padding: 2px 5px;
+
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 1px;
+
+    color: var(--accent);
+    background: var(--bg);
+    border: 1px solid var(--accent);
+
+    cursor: pointer;
+}
+
+.toggle-button[aria-checked="true"] {
+    color: var(--bg);
+    background: var(--accent);
+}
+
+.toggle-button:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.control-slider-row {
     display: grid;
     grid-template-columns: auto 1fr auto;
     align-items: center;
     gap: 7px;
 }
 
-.speed-limit {
+.control-limit {
     font-size: 9px;
     color: var(--accent);
     opacity: 0.8;
     white-space: nowrap;
 }
 
-#speed-slider {
+.control-slider {
     width: 100%;
     height: 18px;
     background: transparent;
@@ -67,13 +93,13 @@ body {
     -webkit-appearance: none;
 }
 
-#speed-slider::-webkit-slider-runnable-track {
+.control-slider::-webkit-slider-runnable-track {
     height: 3px;
     background: var(--surface);
     border: 1px solid var(--accent);
 }
 
-#speed-slider::-webkit-slider-thumb {
+.control-slider::-webkit-slider-thumb {
     appearance: none;
     -webkit-appearance: none;
 
@@ -87,7 +113,7 @@ body {
     cursor: grab;
 }
 
-#speed-slider:active::-webkit-slider-thumb {
+.control-slider:active::-webkit-slider-thumb {
     background: var(--accent);
     cursor: grabbing;
 }
