@@ -17,10 +17,9 @@ Projekt im Rahmen des Moduls **Emerging Technologies** an der HTW Berlin.
 - [Architektur](#architektur)
 - [Technische Details](#technische-details)
 - [Git-Workflow](#git-workflow)
-- [Herausforderungen & Learnings](#herausforderungen--learnings)
-- [Bekannte Einschränkungen & Ausblick](#bekannte-einschränkungen--ausblick)
+- [Einschränkungen & Ausblick](#einschränkungen--ausblick)
 - [Audio-Quellen & Lizenz](#audio-quellen--lizenz)
-- [Autorinnen](#autorinnen)
+- [Autoren](#autoren)
 
 ---
 
