@@ -39,6 +39,9 @@ window.addEventListener('load', () => {
         } else if (type === 'smooth') {
             automaton = new SmoothAutomaton(canvas);
             automaton.setBPM(200);
+        } else if (type === 'briansBrain') {
+            automaton = new Automaton(canvas, 'briansBrain');
+            automaton.setBPM(1000);
         }
         apply(currentTheme, automaton);
         automaton.start();
