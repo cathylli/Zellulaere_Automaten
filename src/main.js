@@ -1,5 +1,4 @@
 import { Automaton } from './automata/Automaton.js';
-import { GradientAutomaton } from './automata/GradientAutomaton.js';
 import { SmoothAutomaton } from './automata/SmoothAutomaton.js';
 import { AudioEngine } from './audio/AudioEngine.js';
 import { DropZoneHandler } from './ui/DropZoneHandler.js';
@@ -10,7 +9,7 @@ import { Handtrack } from './tracking/HandTrack.js';
 import { CanvasRecorder } from './recording/CanvasRecorder.js';
 
 const audioEngine = new AudioEngine();
-const testTrackUrl = 'public/audio/groovy-vibe.mp3';
+const testTrackUrl = '/audio/groovy-vibe.mp3';
 
 window.addEventListener('load', () => {
     const canvas = document.getElementById('canvas-1');
@@ -29,12 +28,19 @@ window.addEventListener('load', () => {
     automaton.start();
 
     function switchAutomaton(type) {
+        // Pinseleinstellungen merken, da jede neue Instanz mit den Standardwerten startet
+        const previousBrushMode = automaton.brushMode;
+        const previousBrushRadius = automaton.brushRadius;
+
         automaton.stop();
-        if (type === 'standard') {
+        if (type === 'highLife') {
             automaton = new Automaton(canvas, 'highLife');
             automaton.setBPM(1000);
-        } else if (type === 'gradient') {
-            automaton = new GradientAutomaton(canvas, 'highLife');
+        } else if (type === 'gameOfLife') {
+            automaton = new Automaton(canvas, 'gameOfLife');
+            automaton.setBPM(1000);
+        } else if (type === 'seeds') {
+            automaton = new Automaton(canvas, 'seeds');
             automaton.setBPM(1000);
         } else if (type === 'smooth') {
             automaton = new SmoothAutomaton(canvas);
@@ -43,7 +49,10 @@ window.addEventListener('load', () => {
             automaton = new Automaton(canvas, 'briansBrain');
             automaton.setBPM(1000);
         }
+        automaton.setBrushMode(previousBrushMode);
+        automaton.setBrushRadius(previousBrushRadius);
         apply(currentTheme, automaton);
+        applyHeatState();
         automaton.start();
     }
 
@@ -66,21 +75,59 @@ window.addEventListener('load', () => {
     });
     resizeObserver.observe(canvas);
 
+    // Setzt den Pinselmodus und hält die Sidebar-Markierung synchron
+    function selectBrushMode(mode) {
+        document.querySelectorAll('.brush-item').forEach(item => {
+            item.classList.toggle('active', item.dataset.mode === mode);
+        });
+        automaton.setBrushMode(mode);
+    }
+
     // Brush-Modus per Tastatur
+    const brushKeys = { '1': 'spray', '2': 'heat', '3': 'storm', '4': 'erase' };
+
     window.addEventListener('keydown', (e) => {
-        if (e.key === '1') automaton.setBrushMode('spray');
-        if (e.key === '2') automaton.setBrushMode('heat');
-        if (e.key === '3') automaton.setBrushMode('storm');
-        if (e.key === '4') automaton.setBrushMode('erase');
+        const mode = brushKeys[e.key];
+        if (mode) selectBrushMode(mode);
     });
 
     // Brush-Modus per UI-Buttons
     document.querySelectorAll('.brush-item').forEach(item => {
-        item.addEventListener('click', () => {
-            document.querySelectorAll('.brush-item').forEach(i => i.classList.remove('active'));
-            item.classList.add('active');
-            automaton.setBrushMode(item.dataset.mode);
-        });
+        item.addEventListener('click', () => selectBrushMode(item.dataset.mode));
+    });
+
+    // Pinselradius
+    const brushRadiusSlider = document.getElementById('brush-radius-slider');
+    const brushRadiusValue = document.getElementById('brush-radius-value');
+
+    automaton.setBrushRadius(brushRadiusSlider.value);
+
+    brushRadiusSlider.addEventListener('input', (event) => {
+        const radius = Number(event.target.value);
+
+        automaton.setBrushRadius(radius);
+        brushRadiusValue.textContent = radius;
+    });
+
+    // Wärme-Spur: Darstellungsart, die für jede Regel zuschaltbar ist
+    const heatToggle = document.getElementById('heat-toggle');
+    let heatEnabled = false;
+
+    function applyHeatState() {
+        // Smooth Life bringt eine eigene Farbabbildung mit und kennt keine Wärme-Schicht
+        const isSupported = !(automaton instanceof SmoothAutomaton);
+        const isActive = isSupported && heatEnabled;
+
+        heatToggle.disabled = !isSupported;
+        heatToggle.setAttribute('aria-checked', String(isActive));
+        heatToggle.textContent = isActive ? 'AN' : 'AUS';
+
+        automaton.setHeatEnabled(isActive);
+    }
+
+    heatToggle.addEventListener('click', () => {
+        heatEnabled = !heatEnabled;
+        applyHeatState();
     });
 
     // Drop-Zone für Audiodateien

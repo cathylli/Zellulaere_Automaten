@@ -14,28 +14,29 @@
             <section>
                 <h3>AUDIO</h3>
                 <ul id="audio-list">
-                    <li class ="audio-item" data-audio="public/audio/groovy-vibe.mp3">Track 1</li>
-                    <li class ="audio-item" data-audio="public/audio/retro-lounge.mp3">Track 2</li>
-                    <li class ="audio-item" data-audio="public/audio/sweet-life-luxury-chill.mp3">Track 3</li>
-                    <li class ="audio-item" data-audio="public/audio/Jeff_Mills_The Bells.wav">Track 4</li>
-                    <li class ="audio-item" data-audio="public/audio/Kraftwerk_Chrono.wav">Track 5</li>
-                    <li class ="audio-item" data-audio="public/audio/Land_of_8_Bits.wav">Track 6</li>
+                    <li class ="audio-item" data-audio="/audio/groovy-vibe.mp3">Track 1</li>
+                    <li class ="audio-item" data-audio="/audio/retro-lounge.mp3">Track 2</li>
+                    <li class ="audio-item" data-audio="/audio/sweet-life-luxury-chill.mp3">Track 3</li>
+                    <li class ="audio-item" data-audio="/audio/Jeff_Mills_The Bells.wav">Track 4</li>
+                    <li class ="audio-item" data-audio="/audio/Kraftwerk_Chrono.wav">Track 5</li>
+                    <li class ="audio-item" data-audio="/audio/Land_of_8_Bits.wav">Track 6</li>
                 </ul>
                 <div id="audio-controls">
                     <button id="btn-play">Play</button>
                     <button id="btn-stop">Stop</button>
                 </div>
-                <div id="speed-control">
-                    <div class="speed-header">
-                        <span class="speed-title">SPEED</span>
-                        <span id="speed-value">1.00x</span>
+                <div id="speed-control" class="control-group">
+                    <div class="control-header">
+                        <span class="control-title">SPEED</span>
+                        <span id="speed-value" class="control-value">1.00x</span>
                     </div>
 
-                    <div class="speed-slider-row">
-                        <span class="speed-limit">0.5x</span>
-                        
-                        <input 
+                    <div class="control-slider-row">
+                        <span class="control-limit">0.5x</span>
+
+                        <input
                             id="speed-slider"
+                            class="control-slider"
                             type="range"
                             min="0.5"
                             max="2"
@@ -43,7 +44,7 @@
                             value="1"
                         >
 
-                        <span class="speed-limit">2.0x</span>
+                        <span class="control-limit">2.0x</span>
                     </div>
                 </div>
                 <div id="drop-zone" class="drop-zone">
@@ -60,16 +61,55 @@
                     <li class="brush-item" data-mode="storm">Sturm</li>
                     <li class="brush-item" data-mode="erase">Löschen</li>
                 </ul>
+
+                <div id="brush-radius-control" class="control-group">
+                    <div class="control-header">
+                        <span class="control-title">RADIUS</span>
+                        <span id="brush-radius-value" class="control-value">3</span>
+                    </div>
+
+                    <div class="control-slider-row">
+                        <span class="control-limit">2</span>
+
+                        <input
+                            id="brush-radius-slider"
+                            class="control-slider"
+                            type="range"
+                            min="2"
+                            max="10"
+                            step="1"
+                            value="3"
+                        >
+
+                        <span class="control-limit">10</span>
+                    </div>
+                </div>
             </section>
 
             <section>
                 <h3>AUTOMAT</h3>
                 <ul id="automaton-list">
-                    <li class="automaton-item active" data-automaton="standard">Standard</li>
-                    <li class="automaton-item" data-automaton="gradient">Wärme-Spur</li>
+                    <li class="automaton-item active" data-automaton="highLife">HighLife</li>
+                    <li class="automaton-item" data-automaton="gameOfLife">Game of Life</li>
+                    <li class="automaton-item" data-automaton="seeds">Seeds</li>
                     <li class="automaton-item" data-automaton="smooth">Smooth Life</li>
                     <li class="automaton-item" data-automaton="briansBrain">Brian's Brain</li>
                 </ul>
+
+                <div id="heat-control" class="control-group">
+                    <div class="control-header">
+                        <span class="control-title">WÄRME-SPUR</span>
+                        <button
+                            id="heat-toggle"
+                            class="toggle-button"
+                            type="button"
+                            role="switch"
+                            aria-checked="false"
+                        >
+                            AUS
+                        </button>
+                    </div>
+                </div>
             </section>
 
             <section>
