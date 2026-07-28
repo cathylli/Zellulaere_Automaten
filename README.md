@@ -161,7 +161,7 @@ entsprechend invertiert – die Steuerung fühlt sich dadurch wie ein Spiegel an
 
 Über den Pfeil `◀` lässt sich das Kamerafenster minimieren.
 
-![Screenshot des Handtrackings](docs/handtracking.png)
+![Screenshot des Handtrackings](/Users/emilykruger/Documents/Studium/IKG/Semester6/Emerging Technologies/zellulaere-automaten/docs/Handtracking2.png)
 
 ### Aufnahme
 
@@ -171,7 +171,7 @@ Anschließend öffnet sich – sofern der Browser die File System Access API unt
 ein Speichern-Dialog, sonst startet ein normaler Download.
 Dateiname: `zellulaerer-automat-<Zeitstempel>.webm`
 
-![Screenshot des Handtrackings](docs/handtracking2.png)
+![Screenshot des Handtrackings](docs/handtracking.png)
 
 ---
 
