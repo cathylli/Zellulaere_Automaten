@@ -15,6 +15,12 @@ export class Automaton {
 
         this.ruleKey = ruleKey;
         this.brushMode = 'spray';
+        this.brushRadius = 3;
+
+        // Wärme-Spur: optionale Darstellung, die zu jeder Regel zuschaltbar ist
+        this.heatEnabled = false;
+        this.heat = null;
+
         this.bpm = 120;
         this.initMouseEvents();
         this.colors = { alive: '#ff4d8f', dead: '#423439', accent: '#ff4d8f', bg: '#1a0a12' }; // Standardfarben
@@ -29,6 +35,42 @@ export class Automaton {
             console.log(`Pinselmodus gewechselt auf: ${mode}`);
         } else {
             console.error(`Ungültiger Pinselmodus: ${mode}`);
+        }
+    }
+
+    setBrushRadius(radius) {
+        const value = Math.round(Number(radius));
+        if (Number.isFinite(value) && value >= 1) {
+            this.brushRadius = value;
+        } else {
+            console.error(`Ungültiger Pinselradius: ${radius}`);
+        }
+    }
+
+    // Schaltet die Wärme-Spur ein oder aus
+    setHeatEnabled(enabled) {
+        this.heatEnabled = Boolean(enabled);
+
+        if (this.heatEnabled) {
+            this.resetHeat();
+        } else {
+            this.heat = null;
+        }
+
+        this.draw();
+    }
+
+    // Leere Wärme-Schicht in der Größe des aktuellen Gitters
+    resetHeat() {
+        this.heat = Array.from({ length: this.rows }, () =>
+            Array.from({ length: this.cols }, () => 0)
+        );
+    }
+
+    // Nach einem Resize passt die Wärme-Schicht nicht mehr zum Gitter
+    ensureHeat() {
+        if (!this.heat || this.heat.length !== this.rows || this.heat[0]?.length !== this.cols) {
+            this.resetHeat();
         }
     }
 
@@ -69,8 +111,88 @@ export class Automaton {
         this.bpm = newBPM;
     }
 
+    // Wärme folgt den lebenden Zellen und zerfällt danach mit etwas Nachbar-Diffusion
+    updateHeat(next) {
+        this.ensureHeat();
+
+        const nextHeat = this.heat.map(row => [...row]);
+
+        for (let r = 0; r < this.rows; r++) {
+            for (let c = 0; c < this.cols; c++) {
+                // Durchschnittliche Nachbarwärme (liest aus aktuellem heat, nicht nextHeat)
+                let neighborHeat = 0;
+                for (let dr = -1; dr <= 1; dr++) {
+                    for (let dc = -1; dc <= 1; dc++) {
+                        if (dr === 0 && dc === 0) continue;
+                        const nr = (r + dr + this.rows) % this.rows;
+                        const nc = (c + dc + this.cols) % this.cols;
+                        neighborHeat += this.heat[nr][nc];
+                    }
+                }
+                neighborHeat /= 8;
+
+                if (next[r][c]) {
+                    nextHeat[r][c] = Math.min(1, this.heat[r][c] + 0.4);
+                } else {
+                    // Eigene Wärme zerfällt, nimmt aber etwas Nachbarwärme auf
+                    nextHeat[r][c] = this.heat[r][c] * 0.82 + neighborHeat * 0.12;
+                    if (nextHeat[r][c] < 0.005) nextHeat[r][c] = 0;
+                }
+            }
+        }
+
+        this.heat = nextHeat;
+    }
+
+    colorFromHeat(v) {
+        // Thermische Palette: dunkel → blau → magenta → orange → weiß
+        const stops = [
+            [0.00, [5,   0,   15]],
+            [0.20, [30,  0,   80]],
+            [0.50, [200, 0,   100]],
+            [0.75, [255, 130, 20]],
+            [1.00, [255, 245, 180]],
+        ];
+        v = Math.max(0, Math.min(1, v));
+        for (let i = 0; i < stops.length - 1; i++) {
+            const [t0, c0] = stops[i];
+            const [t1, c1] = stops[i + 1];
+            if (v <= t1) {
+                const t = (v - t0) / (t1 - t0);
+                const r = Math.round(c0[0] + (c1[0] - c0[0]) * t);
+                const g = Math.round(c0[1] + (c1[1] - c0[1]) * t);
+                const b = Math.round(c0[2] + (c1[2] - c0[2]) * t);
+                return `rgb(${r},${g},${b})`;
+            }
+        }
+        return 'rgb(255,245,180)';
+    }
+
+    // Zeichnet die Wärme-Schicht statt lebendig/tot
+    drawHeat() {
+        this.ensureHeat();
+
+        this.ctx.fillStyle = '#050010';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        for (let r = 0; r < this.rows; r++) {
+            for (let c = 0; c < this.cols; c++) {
+                const h = this.heat[r][c];
+                if (h > 0.01) {
+                    this.ctx.fillStyle = this.colorFromHeat(h);
+                    this.ctx.fillRect(c * this.cellsize, r * this.cellsize, this.cellsize, this.cellsize);
+                }
+            }
+        }
+    }
+
     // Zeichnet das Gitter auf die Canvas
     draw() {
+        if (this.heatEnabled) {
+            this.drawHeat();
+            return;
+        }
+
         this.ctx.fillStyle = this.colors.dead;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         
@@ -97,6 +219,10 @@ export class Automaton {
             }   
         }
         
+        if (this.heatEnabled) {
+            this.updateHeat(next); // Wärme-Schicht anhand des neuen Gitters fortschreiben
+        }
+
         this.grid = next; // Aktualisieren des Gitters mit dem nächsten Zustand
         this.draw(); // Neuzeichnen des Gitters
     }
@@ -149,14 +275,8 @@ export class Automaton {
         const centerC = Math.floor(canvasX / this.cellsize);
         const centerR = Math.floor(canvasY / this.cellsize);
 
-        let radius = 3;
+        const radius = this.brushRadius;
         const density = 0.35;
-
-        if (this.brushMode === 'heat' || this.brushMode === 'erase') {
-            radius = 4;
-        } else if (this.brushMode === 'storm') {
-            radius = 2;
-        }
 
         for (let dr = -radius; dr <= radius; dr++) {
             for (let dc = -radius; dc <= radius; dc++) {
