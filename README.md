@@ -161,6 +161,8 @@ entsprechend invertiert – die Steuerung fühlt sich dadurch wie ein Spiegel an
 
 Über den Pfeil `◀` lässt sich das Kamerafenster minimieren.
 
+![Screenshot des Handtrackings](/Users/emilykruger/Documents/Studium/IKG/Semester6/Emerging Technologies/zellulaere-automaten/docs/Handtracking2.png)
+
 ### Aufnahme
 
 Der runde Record-Button unten rechts ist erst aktiv, sobald Audio abgespielt wird.
