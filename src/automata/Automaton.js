@@ -235,6 +235,7 @@ export class Automaton {
             this.step(); // Berechnet den nächsten Schritt
 
             // Berechnet Millisekunden pro Schritt basierend auf BPM
+            // könnte auch (1 / this.bpm) * mulitplyer sein, aber 60 / bpm ist die Standardformel für BPM zu Millisekunden
             const interval = (60 / this.bpm) * 1000;
 
             setTimeout(loop, interval); // Wiederholt die Schleife alle 'interval'ms

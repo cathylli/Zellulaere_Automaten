@@ -65,7 +65,7 @@ getUserMedia). Die einzige nennenswerte Abhängigkeit ist MediaPipe für das Han
 - **Node.js** ≥ 18 und npm
 - Ein aktueller Browser mit Unterstützung für Web Audio API und `canvas.captureStream()`
   (getestet in Chrome, Firefox und Safari)
-- Für das Handtracking: eine **Webcam** und eine Seite, die über `localhost` oder
+- Für das Handtracking: eine Webcam und eine Seite, die über `localhost` oder
   HTTPS ausgeliefert wird (Browser geben `getUserMedia` sonst nicht frei)
 
 ### Installation & Start
@@ -98,7 +98,7 @@ npm run preview   # Build lokal ausliefern
 Über die Drop-Zone lassen sich eigene Dateien per Drag & Drop oder Klick laden.
 Alles, was nicht als `audio/*` erkannt wird, wird ignoriert.
 
-**SPEED** – Der Slider (0.5x – 2.0x) verändert die **Abspielgeschwindigkeit der Musik**.
+**SPEED** – Der Slider (0.5x – 2.0x) verändert die Abspielgeschwindigkeit der Musik.
 Da die Automatengeschwindigkeit indirekt aus der Energie der Musik abgeleitet wird, beschleunigt ein schnellerer Track entsprechend auch den Automaten.
 
 **EINFLUSS** – Die vier Pinselmodi:
@@ -166,12 +166,12 @@ entsprechend invertiert – die Steuerung fühlt sich dadurch wie ein Spiegel an
 ### Aufnahme
 
 Der runde Record-Button unten rechts ist erst aktiv, sobald Audio abgespielt wird.
-Ein Klick startet die Aufnahme von Canvas **und** Audio, ein zweiter beendet sie.
+Ein Klick startet die Aufnahme von Canvas und Audio, ein zweiter beendet sie.
 Anschließend öffnet sich – sofern der Browser die File System Access API unterstützt –
 ein Speichern-Dialog, sonst startet ein normaler Download.
 Dateiname: `zellulaerer-automat-<Zeitstempel>.webm`
 
-![Screenshot des Handtrackings](docs/handtracking.png)
+![Screenshot des Handtrackings](docs/Handtracking2.png)
 
 ---
 
@@ -303,7 +303,7 @@ mit und unterstützt die Wärme-Spur nicht, weswegen der Schalter dort deaktivie
 Der `Analyzer` erzeugt einen `AnalyserNode` mit `fftSize = 2048`, was 1024
 Frequenz-Bins ergibt.
 
-**Energie** – Jeder Bin wird auf 0–1 normalisiert, **quadriert** und gemittelt,
+**Energie** – Jeder Bin wird auf 0–1 normalisiert, quadriert und gemittelt,
 danach wieder auf 0–255 skaliert. Das Quadrieren spreizt laute Passagen stärker
 auseinander als ein einfacher Mittelwert und macht den Unterschied zwischen
 ruhigen und dichten Stellen deutlicher sichtbar.
