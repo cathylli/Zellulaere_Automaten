@@ -161,7 +161,7 @@ entsprechend invertiert – die Steuerung fühlt sich dadurch wie ein Spiegel an
 
 Über den Pfeil `◀` lässt sich das Kamerafenster minimieren.
 
-![Screenshot des Handtrackings](/Users/emilykruger/Documents/Studium/IKG/Semester6/Emerging Technologies/zellulaere-automaten/docs/Handtracking2.png)
+![Screenshot des Handtrackings](docs/Handtracking2.png)
 
 ### Aufnahme
 
@@ -170,8 +170,6 @@ Ein Klick startet die Aufnahme von Canvas und Audio, ein zweiter beendet sie.
 Anschließend öffnet sich – sofern der Browser die File System Access API unterstützt –
 ein Speichern-Dialog, sonst startet ein normaler Download.
 Dateiname: `zellulaerer-automat-<Zeitstempel>.webm`
-
-![Screenshot des Handtrackings](docs/Handtracking2.png)
 
 ---
 
@@ -213,30 +211,40 @@ zellulaere-automaten/
   Audiodatei / Drag & Drop
             │
             ▼
-     ┌──────────────┐   AnalyserNode    ┌──────────────┐
-     │ AudioEngine  │──────────────────▶│   Analyzer   │
-     └──────┬───────┘                   └──────┬───────┘
-            │                                  │
-            │ destination                      │ getEnergy() ──▶ setBPM()
-            │ recordingDestination             │ getBassLevel() ──▶ randomizeGrid()
-            ▼                                  ▼
-      Lautsprecher                      ┌──────────────┐
-            │                           │  Automaton   │◀── applyBrushAt()
-            │                           └──────┬───────┘        ▲
-            │                                  │                │
-            │                                  ▼          ┌─────┴──────┐
-            └──────────────────────────▶  canvas-1        │ Maus /     │
-                        CanvasRecorder        │           │ HandTrack  │
-                                              ▼           └────────────┘
-                                        WebM-Datei
+     ┌──────────────┐
+     │ AudioEngine  │  BufferSource ──▶ GainNode
+     └──────┬───────┘
+            │ AnalyserNode
+            ▼
+     ┌──────────────┐  getBuffer()    ──▶ Visualizer ──▶ visualizer-canvas
+     │   Analyzer   │  getEnergy()    ──▶ setBPM()
+     └──┬────────┬──┘  getBassLevel() ──▶ randomizeGrid()
+        │        │                              │
+        │        │                              ▼
+        │        │                       ┌──────────────┐                  ┌────────────┐
+        │        │                       │  Automaton   │◀─────────────────│ Maus /     │
+        │        │                       └──────┬───────┘  applyBrushAt()  │ HandTrack  │
+        │        │ recordingDestination         │ draw()                   └────────────┘
+        │        │                              ▼
+        │        │                           canvas-1
+        │        ▼                              │
+        │  ┌────────────────────────────────────┴─┐
+        │  │            CanvasRecorder            │
+        │  └───────────────────┬──────────────────┘
+        │ destination          ▼
+        ▼                 WebM-Datei
+  Lautsprecher
+
+  Rückkopplung: HandTrack (linke Hand, Pinch) ──▶ speed-slider ──▶ AudioEngine.setPlaybackRate()
+
 ```
 
-Zentral ist die Render-Schleife `visualize()` in [main.js:247](src/main.js#L247).
+Zentral ist die Render-Schleife `visualize()` in [main.js](src/main.js#L294).
 Sie läuft über `requestAnimationFrame`, zeichnet in jedem Frame den Visualizer und
 überträgt die aktuellen Analysewerte der Musik (Energy und Bass) auf den Automaten.
 Der Automat selbst hat eine eigene, unabhängige Schleife (`setTimeout` mit einem
 aus den BPM berechnetem Intervall), sodass Simulationstakt und Bildwiederholrate
-entkoppelt sind.
+entkoppelt sind (Smooth Life ausgenommen).
 
 ---
 
@@ -383,10 +391,12 @@ auf der einen sowie UI, Handtracking und Aufnahme auf der anderen Seite.
 - **`ThreeBandEqualizer.js` ist derzeit ungenutzt.** Die Klasse stellt einen Drei-Band-Equalizer
   aus `BiquadFilterNode`s bereit (Bass, Mitten, Höhen), mit dem sich der Klang der Musik
   verändern ließe.
-- **Smooth Life ignoriert die BPM.** Die Variante läuft aktuell mit fester Bildrate und reagiert nicht dynamisch auf die Musik. Der
+- **Smooth Life ignoriert die BPM und den Bass.** Die Variante läuft aktuell mit fester Bildrate und reagiert nicht dynamisch auf die Musik. Der
   entsprechende Codepfad ist auskommentiert vorhanden, da er für SmoothLife nicht gut funktioniert. Weil es von kontinuerlichen Veränderungen lebt und größere Intervalle "stockend" aussehen anstatt den Automaten nur langsamer zu machen, wäre ein Ansatz, der die Schrittweite anstatt die Schrittrate verändert sinnvoller.
   
   Schrittrate = wie oft gerechnet wird. Schrittweite = wie viel sich pro Rechenschritt ändert.
+
+  `randomizeGrid()` prüft, ob eine Zelle die Werte 0 oder 1 besitzt. Da Smooth Life mit Fließkommazahlen arbeitet, wird diese Bedingung so gut wie nie erfüllt und der Bass-Impuls greift nicht.
 
 ---
 
