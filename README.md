@@ -402,7 +402,7 @@ auf der einen sowie UI, Handtracking und Aufnahme auf der anderen Seite.
 
 ## Audio-Quellen & Lizenz
 
-Im Ordner `public/audio/` liegen sechs Demo-Tracks. Sie sind unterschiedlicher
+Im Ordner `public/audio/` liegen vier Demo-Tracks. Sie sind unterschiedlicher
 Herkunft und wurden ausschließlich zu Demonstrationszwecken innerhalb dieses
 Hochschulprojekts eingebunden:
 
@@ -412,19 +412,16 @@ Hochschulprojekts eingebunden:
 | `retro-lounge.mp3` | „Retro Lounge" von Bransboynd | [Pixabay](https://pixabay.com/music/synthwave-retro-lounge-389644/) | Pixabay Content License |
 | `sweet-life-luxury-chill.mp3` | „Sweet Life (Luxury Chill)" von AlexGrohl | [Pixabay](https://pixabay.com/music/beats-sweet-life-luxury-chill-438146/) | Pixabay Content License |
 | `Land_of_8_Bits.wav` | „Land of 8 Bits" von Stephen Bennett | [Fesliyan Studios](https://www.fesliyanstudios.com/royalty-free-music/download/land-of-8-bits/288) | frei für nicht-kommerzielle Nutzung, Namensnennung erforderlich¹ |
-| `Jeff_Mills_The Bells.wav` | „The Bells" von Jeff Mills | kommerzielle Veröffentlichung | **nicht frei lizenziert** |
-| `Kraftwerk_Chrono.wav` | „Chrono" von Kraftwerk | kommerzielle Veröffentlichung | **nicht frei lizenziert** |
 
 ¹ Fesliyan Studios verlangt bei nicht-kommerzieller Nutzung eine Namensnennung. Für
 kommerzielle Nutzung ist stattdessen eine Spende vorgesehen, dafür entfällt die Nennung.
 
 > Royalty free music from https://www.FesliyanStudios.com
 
-> **Hinweis:** Die beiden letztgenannten Tracks sind urheberrechtlich geschützte
-> Musik und dürfen nicht mit dem Projekt weiterverbreitet werden. Für eine
-> Veröffentlichung des Repositories sollten sie entfernt und durch frei lizenzierte
-> Alternativen ersetzt werden. Die eigene Musik lässt sich jederzeit über die
-> Drop-Zone laden.
+> **Hinweis:** Zwei ursprünglich enthaltene, urheberrechtlich geschützte Tracks
+> („The Bells" von Jeff Mills und „Chrono" von Kraftwerk) wurden entfernt, da sie
+> nicht mit dem Projekt weiterverbreitet werden dürfen. Eigene Musik lässt sich
+> jederzeit über die Drop-Zone laden.
 
 **Abhängigkeiten**
 
