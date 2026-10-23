@@ -9,7 +9,7 @@ import { Handtrack } from './tracking/HandTrack.js';
 import { CanvasRecorder } from './recording/CanvasRecorder.js';
 
 const audioEngine = new AudioEngine();
-const testTrackUrl = '/audio/groovy-vibe.mp3';
+const testTrackUrl = './public/audio/groovy-vibe.mp3';
 
 window.addEventListener('load', () => {
     const canvas = document.getElementById('canvas-1');
