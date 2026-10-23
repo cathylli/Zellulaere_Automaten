@@ -58,6 +58,21 @@ class Analyzer {
     return sum / bassRange;
 }
 
+  // Momentane Lautstärke (RMS der Wellenform, 0–1)
+  // Anders als die FFT-Werte nicht über die Zeit geglättet, reagiert also sofort auf Schläge
+  getLoudness() {
+    if (!this.timeDomainData) {
+      this.timeDomainData = new Float32Array(this.analyzerNode.fftSize);
+    }
+    this.analyzerNode.getFloatTimeDomainData(this.timeDomainData);
+
+    let sum = 0;
+    for (let i = 0; i < this.timeDomainData.length; i++) {
+      sum += this.timeDomainData[i] * this.timeDomainData[i];
+    }
+    return Math.sqrt(sum / this.timeDomainData.length);
+  }
+
 }
 
 export default Analyzer;

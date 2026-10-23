@@ -399,9 +399,9 @@ window.addEventListener('load', () => {
     // Zuschauer-Fenster mitschließen, wenn die Bedienung geschlossen wird
     window.addEventListener('beforeunload', () => audienceWindow?.close());
 
-    // Spectral Flux: zeitlich geglättete Änderungsrate des Spektrums steuert die BPM
-    let smoothedFlux = 0;
-    const fluxMultiplier = 1000; // Faktor, um den Flux in BPM umzurechnen
+    // Aufleuchten von Smooth Life: folgt Schlägen, die aus der Musik herausstechen
+    let loudnessAverage = 0;
+    const pulseSensitivity = 1.5; // höher = schon kleinere Schläge leuchten voll auf
 
     // Main draw loop
     function visualize() {
@@ -419,7 +419,14 @@ window.addEventListener('load', () => {
 
             // Bass-Level aus dem Song ableiten und auf den Automaten anwenden
             const bassLevel = analyzer.getBassLevel();
-            if (bassLevel > bassThreshold) { // Wenn der Bass-Level hoch ist, randomize das Gitter
+            if (automaton instanceof SmoothAutomaton) {
+                // Lautstärke relativ zum Durchschnitt der letzten ~0,3 s: ein Schlag, der doppelt so
+                // laut ist wie der Durchschnitt, ergibt excess = 1; leiser als der Durchschnitt = 0
+                const loudness = analyzer.getLoudness();
+                loudnessAverage += (loudness - loudnessAverage) * 0.05;
+                const excess = loudnessAverage > 0 ? loudness / loudnessAverage - 1 : 0;
+                automaton.flash(Math.min(1, Math.max(0, excess * pulseSensitivity)));
+            } else if (bassLevel > bassThreshold) { // Wenn der Bass-Level hoch ist, randomize das Gitter
                 automaton.randomizeGrid(0.01); // Zufällige Zellen aktivieren, wenn der Bass-Level hoch ist
             }
         }
