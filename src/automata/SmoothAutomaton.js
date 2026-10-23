@@ -22,26 +22,56 @@ export class SmoothAutomaton extends Automaton {
         // Aufleuchten beim Bass: schiebt die Zellwerte in der Palette nach oben (Richtung gelb/weiß)
         this.bassFlash = 0;        // aktuelle Stärke, 0–1
         this.flashStrength = 1;  // Betrag, um den jeder Zellwert (0–1) bei vollem Aufleuchten angehoben wird
-        this.flashDecay = 0.8;     // Abklingen pro Frame (kleiner = kürzer, knackiger)
+        this.flashDecay = 0.9;     // Abklingen pro Frame (kleiner = kürzer, knackiger)
         this.baseBrightness = 0.4; // Gebilde im Normalzustand dunkler darstellen, damit das Aufleuchten Luft nach oben hat
+
+        // Tempo in Simulationsschritten pro Bildschirm-Frame (Bruchteile werden über Frames gesammelt)
+        this.baseSpeed = 0.3;      // Grundtempo, ca. 30 Schritte/s – entspricht etwa dem Tempo vor der Optimierung
+        this.boostSpeed = 2;       // Tempo direkt nach einem Bass-Schlag
+        this.boostDecay = 0.9;     // wie schnell das Tempo danach wieder auf das Grundtempo fällt (pro Frame)
+        this.speedBoost = 0;       // aktueller Anteil des Boosts, 0–1
+        this.stepAccumulator = 0;
     }
 
-    // Einmalig: alle (dr, dc) Offsets in inner/outer aufteilen
-    // Flach als [dr0, dc0, dr1, dc1, ...] gespeichert, das ist in der Schleife schneller als Paare
+    // Override: Smooth Life ignoriert die BPM, das Tempo kommt über boost() vom Bass
+    setBPM(newBPM) {
+        this.bpm = newBPM;
+    }
+
+    // Erhöht das Tempo kurzzeitig (z.B. solange der Bass über der Schwelle liegt)
+    boost() {
+        this.speedBoost = 1;
+    }
+
+    // Einmalig: Kreise als waagerechte Streifen beschreiben
+    // Ein Kreis mit Radius R besteht aus Zeilen dr = -R..R mit halber Breite w (alle dc mit |dc| <= w),
+    // so dass die Summe eines Streifens später mit 2 Zugriffen auf die Zeilen-Präfixsummen geht
     _precomputeOffsets() {
-        const inner = [];
-        const outer = [];
-        const ri2 = this.ri * this.ri;
-        const ro2 = this.ro * this.ro;
-        for (let dr = -this.ro; dr <= this.ro; dr++) {
-            for (let dc = -this.ro; dc <= this.ro; dc++) {
-                const d2 = dr * dr + dc * dc;
-                if (d2 <= ri2) inner.push(dr, dc);
-                else if (d2 <= ro2) outer.push(dr, dc);
+        const buildSpans = (radius) => {
+            const dr = [];
+            const w = [];
+            let count = 0;
+            for (let d = -radius; d <= radius; d++) {
+                let half = 0;
+                while (d * d + (half + 1) * (half + 1) <= radius * radius) half++;
+                dr.push(d);
+                w.push(half);
+                count += 2 * half + 1;
             }
-        }
-        this.innerOffsets = Int8Array.from(inner);
-        this.outerOffsets = Int8Array.from(outer);
+            return { dr: Int8Array.from(dr), w: Int8Array.from(w), count };
+        };
+
+        const inner = buildSpans(this.ri);
+        const disc = buildSpans(this.ro);
+
+        this.innerSpanDr = inner.dr;
+        this.innerSpanW = inner.w;
+        this.discSpanDr = disc.dr;
+        this.discSpanW = disc.w;
+
+        // Ring = großer Kreis ohne inneren Kreis (wie bisher: d² <= ri² innen, sonst d² <= ro² außen)
+        this.innerCount = inner.count;
+        this.outerCount = disc.count - inner.count;
     }
 
     // Vorberechnete Indizes für das Umwickeln an den Rändern (ersetzt % in der inneren Schleife)
@@ -93,31 +123,68 @@ export class SmoothAutomaton extends Automaton {
         this.running = true;
         const loop = () => {
             if (!this.running) return;
-            this.step();
+
+            // Aktuelles Tempo zwischen Grundtempo und Boost; Bruchteile von Schritten sammeln
+            const speed = this.baseSpeed + (this.boostSpeed - this.baseSpeed) * this.speedBoost;
+            this.stepAccumulator += speed;
+            while (this.stepAccumulator >= 1) {
+                this.advance();
+                this.stepAccumulator--;
+            }
+            this.speedBoost *= this.boostDecay;
+
+            // Jedes Frame zeichnen, damit das Aufleuchten flüssig bleibt
+            this.draw();
 
             requestAnimationFrame(loop);
-
-            //für BPM-basierte Animation -> funktioniert allerdings nicht gut, da SmoothLife für einen Schritt relativ lange benötigt und die Animation von kontinuierlichen Updates lebt (also größere Intervalle führen zu "Ruckeln")
-            //const interval = (60 / this.bpm) * 1000;
-            //setTimeout(loop, interval);
         };
         requestAnimationFrame(loop);
     }
 
-    // Override: vorberechnete Offsets und Rand-Tabellen statt nested Loop mit dist²-Check und %
-    step() {
+    // Laufende Summen jeder Zeile, links und rechts um ro Spalten umgewickelt erweitert
+    // Summe der Spalten c+a .. c+b in Zeile r = P[r*stride + c+b+ro+1] - P[r*stride + c+a+ro]
+    _buildRowPrefixSums() {
+        const cols = this.cols;
+        const ro = this.ro;
+        const stride = cols + 2 * ro + 1;
+        const size = this.rows * stride;
+
+        if (!this.prefix || this.prefix.length !== size) {
+            this.prefix = new Float64Array(size);
+        }
+
+        const prefix = this.prefix;
+        const colWrap = this.colWrap;
+        for (let r = 0; r < this.rows; r++) {
+            const row = this.grid[r];
+            const base = r * stride;
+            let sum = 0;
+            prefix[base] = 0;
+            for (let k = 0; k < cols + 2 * ro; k++) {
+                sum += row[colWrap[k]];
+                prefix[base + k + 1] = sum;
+            }
+        }
+        return stride;
+    }
+
+    // Ein Simulationsschritt ohne Zeichnen
+    // Override: Nachbarschaftssummen über Zeilen-Präfixsummen (2 Zugriffe pro Kreis-Streifen)
+    advance() {
         this._ensureWrapTables();
+        const stride = this._buildRowPrefixSums();
 
         const rows = this.rows;
         const cols = this.cols;
         const ro = this.ro;
-        const grid = this.grid;
+        const prefix = this.prefix;
         const rowWrap = this.rowWrap;
-        const colWrap = this.colWrap;
-        const inner = this.innerOffsets;
-        const outer = this.outerOffsets;
-        const innerCount = inner.length / 2;
-        const outerCount = outer.length / 2;
+        const innerDr = this.innerSpanDr;
+        const innerW = this.innerSpanW;
+        const discDr = this.discSpanDr;
+        const discW = this.discSpanW;
+        const innerCount = this.innerCount;
+        const outerCount = this.outerCount;
 
         const next = new Array(rows);
 
@@ -129,17 +196,21 @@ export class SmoothAutomaton extends Automaton {
                 const cBase = c + ro;
 
                 let innerSum = 0;
-                for (let i = 0; i < inner.length; i += 2) {
-                    innerSum += grid[rowWrap[rBase + inner[i]]][colWrap[cBase + inner[i + 1]]];
+                for (let j = 0; j < innerDr.length; j++) {
+                    const rowStart = rowWrap[rBase + innerDr[j]] * stride + cBase;
+                    const w = innerW[j];
+                    innerSum += prefix[rowStart + w + 1] - prefix[rowStart - w];
                 }
 
-                let outerSum = 0;
-                for (let i = 0; i < outer.length; i += 2) {
-                    outerSum += grid[rowWrap[rBase + outer[i]]][colWrap[cBase + outer[i + 1]]];
+                let discSum = 0;
+                for (let j = 0; j < discDr.length; j++) {
+                    const rowStart = rowWrap[rBase + discDr[j]] * stride + cBase;
+                    const w = discW[j];
+                    discSum += prefix[rowStart + w + 1] - prefix[rowStart - w];
                 }
 
                 const m = innerSum / innerCount;
-                const n = outerSum / outerCount;
+                const n = (discSum - innerSum) / outerCount;
                 nextRow[c] = Math.max(0, Math.min(1, this.transition(n, m)));
             }
 
@@ -147,6 +218,10 @@ export class SmoothAutomaton extends Automaton {
         }
 
         this.grid = next;
+    }
+
+    step() {
+        this.advance();
         this.draw();
     }
 

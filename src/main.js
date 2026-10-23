@@ -426,6 +426,11 @@ window.addEventListener('load', () => {
                 loudnessAverage += (loudness - loudnessAverage) * 0.05;
                 const excess = loudnessAverage > 0 ? loudness / loudnessAverage - 1 : 0;
                 automaton.flash(Math.min(1, Math.max(0, excess * pulseSensitivity)));
+
+                // Bass über der Schwelle: Tempo kurzzeitig erhöhen
+                if (bassLevel > bassThreshold) {
+                    automaton.boost();
+                }
             } else if (bassLevel > bassThreshold) { // Wenn der Bass-Level hoch ist, randomize das Gitter
                 automaton.randomizeGrid(0.01); // Zufällige Zellen aktivieren, wenn der Bass-Level hoch ist
             }
