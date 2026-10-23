@@ -23,6 +23,46 @@
                     <button id="btn-play">Play</button>
                     <button id="btn-stop">Stop</button>
                 </div>
+                <div id="live-control" class="control-group">
+                    <div class="control-header">
+                        <span class="control-title">LIVE-EINGANG</span>
+                        <button
+                            id="live-toggle"
+                            class="toggle-button"
+                            type="button"
+                            role="switch"
+                            aria-checked="false"
+                        >
+                            AUS
+                        </button>
+                    </div>
+
+                    <select id="live-device-select" class="control-select">
+                        <option value="">Standard-Eingang</option>
+                    </select>
+                </div>
+                <div id="input-gain-control" class="control-group">
+                    <div class="control-header">
+                        <span class="control-title">EINGANGS-GAIN</span>
+                        <span id="input-gain-value" class="control-value">1.00x</span>
+                    </div>
+
+                    <div class="control-slider-row">
+                        <span class="control-limit">0x</span>
+
+                        <input
+                            id="input-gain-slider"
+                            class="control-slider"
+                            type="range"
+                            min="0"
+                            max="4"
+                            step="0.05"
+                            value="1"
+                        >
+
+                        <span class="control-limit">4x</span>
+                    </div>
+                </div>
                 <div id="speed-control" class="control-group">
                     <div class="control-header">
                         <span class="control-title">SPEED</span>
@@ -43,6 +83,28 @@
                         >
 
                         <span class="control-limit">2.0x</span>
+                    </div>
+                </div>
+                <div id="bass-threshold-control" class="control-group">
+                    <div class="control-header">
+                        <span class="control-title">BASS-SCHWELLE</span>
+                        <span id="bass-threshold-value" class="control-value">150</span>
+                    </div>
+
+                    <div class="control-slider-row">
+                        <span class="control-limit">100</span>
+
+                        <input
+                            id="bass-threshold-slider"
+                            class="control-slider"
+                            type="range"
+                            min="100"
+                            max="200"
+                            step="1"
+                            value="150"
+                        >
+
+                        <span class="control-limit">200</span>
                     </div>
                 </div>
                 <div id="drop-zone" class="drop-zone">
@@ -118,6 +180,24 @@
                     <li class="theme-item" data-color="green">Grün</li>
                     <li class="theme-item" data-color="blue">Blau</li>
                 </ul>
+            </section>
+
+            <section>
+                <h3>AUSGABE</h3>
+                <div id="audience-control" class="control-group">
+                    <div class="control-header">
+                        <span class="control-title">ZUSCHAUER-FENSTER</span>
+                        <button
+                            id="audience-toggle"
+                            class="toggle-button"
+                            type="button"
+                            role="switch"
+                            aria-checked="false"
+                        >
+                            AUS
+                        </button>
+                    </div>
+                </div>
             </section>
         </aside>    
 

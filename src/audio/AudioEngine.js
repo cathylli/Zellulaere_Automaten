@@ -11,6 +11,18 @@ export class AudioEngine {
         this.analyzerNode = null;
 
         this.recordingDestination = null;
+
+        // Live-Eingang (z.B. Mischpult über Audio-Interface)
+        this.liveStream = null;
+        this.liveSource = null;
+        this.liveGainNode = null;
+        this.inputGain = 1.0;
+        this.isLive = false;
+    }
+
+    // true, wenn gerade Audio analysiert wird – egal ob Track oder Live-Eingang
+    get isActive() {
+        return this.isPlaying || this.isLive;
     }
 
     // Initialisiert den AudioContext nach einem Klick im UI
@@ -62,6 +74,7 @@ export class AudioEngine {
         if (this.isPlaying) {
             this.stop();
         }
+        this.stopLiveInput();
 
         // Ein SourceNode kann in der Web Audio API immer NUR EINMAL abgespielt werden
         // Deshalb bei jedem "Play" neu erstellen
@@ -131,6 +144,74 @@ export class AudioEngine {
         this.playbackRate = Math.max(0.5, Math.min(2.0, Number(value)));
         if (this.sourceNode && this.ctx) {
             this.sourceNode.playbackRate.setValueAtTime(this.playbackRate, this.ctx.currentTime);
+        }
+    }
+
+    // Verfügbare Audio-Eingänge auflisten (Namen erst nach erster Freigabe sichtbar)
+    async getInputDevices() {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        return devices.filter(device => device.kind === 'audioinput');
+    }
+
+    // Live-Eingang starten: Signal wird nur analysiert, nicht ausgegeben
+    async startLiveInput(deviceId = null) {
+        this.init();
+        await this.ctx.resume();
+
+        this.stop();
+        this.stopLiveInput();
+
+        this.liveStream = await navigator.mediaDevices.getUserMedia({
+            audio: {
+                deviceId: deviceId ? { exact: deviceId } : undefined,
+                // Browser-Filter sind für Sprache gedacht und verfälschen Musik
+                echoCancellation: false,
+                noiseSuppression: false,
+                autoGainControl: false,
+            }
+        });
+
+        this.liveSource = this.ctx.createMediaStreamSource(this.liveStream);
+        this.liveGainNode = this.ctx.createGain();
+        this.setInputGain(this.inputGain);
+
+        // Kette: Eingang -> Gain -> Analyzer -> Aufnahme
+        this.liveSource.connect(this.liveGainNode);
+
+        if (this.analyzerNode) {
+            // Verbindung zu den Lautsprechern aus einer vorherigen Wiedergabe trennen,
+            // sonst entsteht eine Rückkopplung
+            this.analyzerNode.disconnect();
+            this.liveGainNode.connect(this.analyzerNode);
+            this.analyzerNode.connect(this.recordingDestination);
+        } else {
+            this.liveGainNode.connect(this.recordingDestination);
+        }
+
+        this.isLive = true;
+        console.log("Live-Eingang gestartet.");
+    }
+
+    // Live-Eingang stoppen und Mikrofonfreigabe beenden
+    stopLiveInput() {
+        if (!this.isLive) return;
+
+        this.liveStream?.getTracks().forEach(track => track.stop());
+        this.liveSource?.disconnect();
+        this.liveGainNode?.disconnect();
+
+        this.liveStream = null;
+        this.liveSource = null;
+        this.liveGainNode = null;
+        this.isLive = false;
+        console.log("Live-Eingang gestoppt.");
+    }
+
+    // Eingangsverstärkung setzen (z.B. 0.5 für halb so laut, 4.0 für vierfach)
+    setInputGain(value) {
+        this.inputGain = Math.max(0.0, Number(value));
+        if (this.liveGainNode) {
+            this.liveGainNode.gain.setValueAtTime(this.inputGain, this.ctx.currentTime);
         }
     }
 

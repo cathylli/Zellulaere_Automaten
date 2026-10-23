@@ -70,6 +70,20 @@ body {
     cursor: not-allowed;
 }
 
+.control-select {
+    width: 100%;
+    padding: 2px 4px;
+
+    font-family: inherit;
+    font-size: 10px;
+
+    color: var(--accent);
+    background: var(--bg);
+    border: 1px solid var(--accent);
+
+    cursor: pointer;
+}
+
 .control-slider-row {
     display: grid;
     grid-template-columns: auto 1fr auto;

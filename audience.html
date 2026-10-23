@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Zelluläre Automaten – Zuschauer</title>
+        <style>
+            html, body {
+                margin: 0;
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+                background: #000;
+                cursor: none;
+            }
+
+            #audience-canvas {
+                display: block;
+                width: 100%;
+                height: 100%;
+            }
+
+            #audience-hint {
+                position: fixed;
+                inset: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                font-family: monospace;
+                font-size: 14px;
+                letter-spacing: 1px;
+                color: #666;
+
+                pointer-events: none;
+            }
+        </style>
+    </head>
+<body>
+    <!-- Ausgabe für den Beamer: zeigt nur den Automaten aus dem Bedienfenster -->
+    <canvas id="audience-canvas"></canvas>
+    <div id="audience-hint">DOPPELKLICK FÜR VOLLBILD</div>
+    <script type="module" src="src/audience.js"></script>
+</body>
+</html>

@@ -57,6 +57,7 @@ class Analyzer {
     // Durchschnittswert des Bass-Bereichs (0 bis 255)
     return sum / bassRange;
 }
+
 }
 
 export default Analyzer;

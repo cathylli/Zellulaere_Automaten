@@ -135,6 +135,7 @@ window.addEventListener('load', () => {
         audioEngine.stop();
         await audioEngine.loadFile(file);
         audioEngine.play();
+        syncLiveToggle();
     });
 
     // Audio-Track Auswahl
@@ -145,6 +146,7 @@ window.addEventListener('load', () => {
             audioEngine.stop();
             await audioEngine.loadFile(item.dataset.audio);
             audioEngine.play();
+            syncLiveToggle();
             playBtn.innerText = 'Spielt!';
             recordButton.disabled = false;
         });
@@ -169,12 +171,15 @@ window.addEventListener('load', () => {
             }
         }
         audioEngine.play();
+        syncLiveToggle();
         playBtn.innerText = 'Spielt!';
         recordButton.disabled = false;
     });
 
     stopBtn.addEventListener('click', () => {
         audioEngine.stop();
+        audioEngine.stopLiveInput();
+        syncLiveToggle();
         playBtn.innerText = 'Play';
     });
 
@@ -184,6 +189,84 @@ window.addEventListener('load', () => {
         audioEngine.setPlaybackRate(speed);
         speedValue.textContent = `${speed.toFixed(2)}x`;
     })
+
+    // Bass-Schwelle: ab welchem Bass-Level das Gitter zufällig belebt wird
+    const bassThresholdSlider = document.getElementById('bass-threshold-slider');
+    const bassThresholdValue = document.getElementById('bass-threshold-value');
+    let bassThreshold = Number(bassThresholdSlider.value);
+
+    bassThresholdSlider.addEventListener('input', (event) => {
+        bassThreshold = Number(event.target.value);
+        bassThresholdValue.textContent = bassThreshold;
+    });
+
+    // Live-Eingang (Mischpult): ersetzt die Track-Wiedergabe als Audioquelle
+    const liveToggle = document.getElementById('live-toggle');
+    const liveDeviceSelect = document.getElementById('live-device-select');
+
+    function syncLiveToggle() {
+        liveToggle.setAttribute('aria-checked', String(audioEngine.isLive));
+        liveToggle.textContent = audioEngine.isLive ? 'AN' : 'AUS';
+    }
+
+    async function refreshInputDevices() {
+        const selectedId = liveDeviceSelect.value;
+        const inputs = await audioEngine.getInputDevices();
+
+        liveDeviceSelect.innerHTML = '<option value="">Standard-Eingang</option>';
+        inputs.forEach((device, index) => {
+            const option = document.createElement('option');
+            option.value = device.deviceId;
+            option.textContent = device.label || `Eingang ${index + 1}`;
+            liveDeviceSelect.appendChild(option);
+        });
+
+        // Vorherige Auswahl beibehalten, falls das Gerät noch da ist
+        if ([...liveDeviceSelect.options].some(o => o.value === selectedId)) {
+            liveDeviceSelect.value = selectedId;
+        }
+    }
+
+    async function startLive() {
+        try {
+            await audioEngine.startLiveInput(liveDeviceSelect.value || null);
+            // Nach der Freigabe sind die Gerätenamen sichtbar
+            await refreshInputDevices();
+            playBtn.innerText = 'Play';
+            recordButton.disabled = false;
+        } catch (error) {
+            console.error("Live-Eingang konnte nicht gestartet werden:", error);
+        }
+        syncLiveToggle();
+    }
+
+    liveToggle.addEventListener('click', () => {
+        if (audioEngine.isLive) {
+            audioEngine.stopLiveInput();
+            syncLiveToggle();
+        } else {
+            startLive();
+        }
+    });
+
+    // Gerätewechsel während des Live-Betriebs: direkt neu verbinden
+    liveDeviceSelect.addEventListener('change', () => {
+        if (audioEngine.isLive) startLive();
+    });
+
+    navigator.mediaDevices.addEventListener('devicechange', refreshInputDevices);
+    refreshInputDevices();
+
+    // Eingangs-Gain für den Live-Eingang
+    const inputGainSlider = document.getElementById('input-gain-slider');
+    const inputGainValue = document.getElementById('input-gain-value');
+
+    inputGainSlider.addEventListener('input', (event) => {
+        const gain = Number(event.target.value);
+
+        audioEngine.setInputGain(gain);
+        inputGainValue.textContent = `${gain.toFixed(2)}x`;
+    });
 
     // Vorbereitung für den Audio-Visualizer
     audioEngine.init();
@@ -290,22 +373,53 @@ window.addEventListener('load', () => {
         }
     });
 
+    // Zuschauer-Fenster: zeigt nur den Automaten, z.B. auf dem Beamer
+    const audienceToggle = document.getElementById('audience-toggle');
+    let audienceWindow = null;
+
+    function syncAudienceToggle() {
+        const isOpen = audienceWindow !== null && !audienceWindow.closed;
+        audienceToggle.setAttribute('aria-checked', String(isOpen));
+        audienceToggle.textContent = isOpen ? 'AN' : 'AUS';
+    }
+
+    audienceToggle.addEventListener('click', () => {
+        if (audienceWindow && !audienceWindow.closed) {
+            audienceWindow.close();
+            audienceWindow = null;
+        } else {
+            audienceWindow = window.open('/audience.html', 'audience', 'popup,width=1280,height=720');
+        }
+        syncAudienceToggle();
+    });
+
+    // Falls das Zuschauer-Fenster direkt geschlossen wird, Schalter zurücksetzen
+    setInterval(syncAudienceToggle, 500);
+
+    // Zuschauer-Fenster mitschließen, wenn die Bedienung geschlossen wird
+    window.addEventListener('beforeunload', () => audienceWindow?.close());
+
+    // Spectral Flux: zeitlich geglättete Änderungsrate des Spektrums steuert die BPM
+    let smoothedFlux = 0;
+    const fluxMultiplier = 1000; // Faktor, um den Flux in BPM umzurechnen
+
     // Main draw loop
     function visualize() {
         requestAnimationFrame(visualize);
         visualizer.draw(lowShelfCutoff, highShelfCutoff);
 
         
-        if (audioEngine.isPlaying) {
-            // Energy aus dem Song ableiten und auf den Automaten anwenden
+        if (audioEngine.isActive) {
+            //Energy aus dem Song ableiten und auf den Automaten anwenden
             const energy = analyzer.getEnergy(); // 0–255
             const multiplyer = 100; // Faktor, um die BPM zu erhöhen
             const bpm = Math.max(60, energy * multiplyer);
+
             automaton.setBPM(bpm);
 
             // Bass-Level aus dem Song ableiten und auf den Automaten anwenden
             const bassLevel = analyzer.getBassLevel();
-            if (bassLevel > 150) { // Wenn der Bass-Level hoch ist, randomize das Gitter
+            if (bassLevel > bassThreshold) { // Wenn der Bass-Level hoch ist, randomize das Gitter
                 automaton.randomizeGrid(0.01); // Zufällige Zellen aktivieren, wenn der Bass-Level hoch ist
             }
         }
