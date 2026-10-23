@@ -500,7 +500,7 @@ window.addEventListener('load', () => {
             audienceWindow.close();
             audienceWindow = null;
         } else {
-            audienceWindow = window.open('/audience.html', 'audience', 'popup,width=1280,height=720');
+            audienceWindow = window.open('./audience.html', 'audience', 'popup,width=1280,height=720');
         }
         syncAudienceToggle();
     });
