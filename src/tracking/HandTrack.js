@@ -1,4 +1,4 @@
-import { FilesetResolver, HandLandmarker, DrawingUtils } from '@mediapipe/tasks-vision';
+import { FilesetResolver, HandLandmarker, DrawingUtils } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0";
 
 export class Handtrack {
     constructor(video, canvas, getAutomaton, speedSlider) {
