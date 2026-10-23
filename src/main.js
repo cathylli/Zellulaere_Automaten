@@ -141,9 +141,43 @@ window.addEventListener('load', () => {
     const brushKeys = { '1': 'spray', '2': 'heat', '3': 'storm', '4': 'erase' };
 
     window.addEventListener('keydown', (e) => {
+        // Beim Tippen in ein Eingabefeld keine Pinsel wechseln
+        if (e.target.closest('input, select, textarea')) return;
+
         const mode = brushKeys[e.key];
         if (mode) selectBrushMode(mode);
     });
+
+    // Zahlenfeld neben einem Regler: zeigt den Reglerwert an und übernimmt eingetippte Werte
+    // Eingaben werden mit Enter oder beim Verlassen des Feldes übernommen; der Regler begrenzt
+    // sie auf seinen Bereich und rundet auf seine Schrittweite, danach laufen dessen Listener
+    function linkNumberInput(slider, numberInput, decimals = 0) {
+        const show = () => {
+            numberInput.value = Number(slider.value).toFixed(decimals);
+        };
+
+        slider.addEventListener('input', show);
+
+        numberInput.addEventListener('change', () => {
+            const value = Number(numberInput.value);
+            if (numberInput.value === '' || !Number.isFinite(value)) {
+                show(); // ungültige Eingabe verwerfen
+                return;
+            }
+            slider.value = value;
+            slider.dispatchEvent(new Event('input'));
+        });
+
+        numberInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') numberInput.blur();
+            if (event.key === 'Escape') {
+                show();
+                numberInput.blur();
+            }
+        });
+
+        show();
+    }
 
     // Brush-Modus per UI-Buttons
     document.querySelectorAll('.brush-item').forEach(item => {
@@ -160,8 +194,8 @@ window.addEventListener('load', () => {
         const radius = Number(event.target.value);
 
         automaton.setBrushRadius(radius);
-        brushRadiusValue.textContent = radius;
     });
+    linkNumberInput(brushRadiusSlider, brushRadiusValue);
 
     // Wärme-Spur: Darstellungsart, die für jede Regel zuschaltbar ist
     const heatToggle = document.getElementById('heat-toggle');
@@ -241,8 +275,8 @@ window.addEventListener('load', () => {
         const speed = Number(event.target.value);
 
         audioEngine.setPlaybackRate(speed);
-        speedValue.textContent = `${speed.toFixed(2)}x`;
     })
+    linkNumberInput(speedSlider, speedValue, 2);
 
     // Bass-Schwelle: ab welchem Bass-Level das Gitter zufällig belebt wird
     const bassThresholdSlider = document.getElementById('bass-threshold-slider');
@@ -251,8 +285,8 @@ window.addEventListener('load', () => {
 
     bassThresholdSlider.addEventListener('input', (event) => {
         bassThreshold = Number(event.target.value);
-        bassThresholdValue.textContent = bassThreshold;
     });
+    linkNumberInput(bassThresholdSlider, bassThresholdValue);
 
     // Live-Eingang (Mischpult): ersetzt die Track-Wiedergabe als Audioquelle
     const liveToggle = document.getElementById('live-toggle');
@@ -319,7 +353,36 @@ window.addEventListener('load', () => {
         const gain = Number(event.target.value);
 
         audioEngine.setInputGain(gain);
-        inputGainValue.textContent = `${gain.toFixed(2)}x`;
+    });
+    linkNumberInput(inputGainSlider, inputGainValue, 2);
+
+    // Umschalter TRACKS | LIVE: zeigt nur die Bedienung der gewählten Quelle
+    // Beim Wechsel wird die andere Quelle gestoppt, sonst liefe sie ohne sichtbaren Stop-Knopf weiter
+    const sourceTabs = [
+        { tab: document.getElementById('tab-tracks'), panel: document.getElementById('panel-tracks') },
+        { tab: document.getElementById('tab-live'), panel: document.getElementById('panel-live') },
+    ];
+
+    function selectSource(selectedTab) {
+        sourceTabs.forEach(({ tab, panel }) => {
+            const isSelected = tab === selectedTab;
+            tab.setAttribute('aria-selected', String(isSelected));
+            panel.hidden = !isSelected;
+        });
+
+        if (selectedTab.id === 'tab-live') {
+            audioEngine.stop();
+            playBtn.innerText = 'Play';
+        } else {
+            audioEngine.stopLiveInput();
+            syncLiveToggle();
+        }
+    }
+
+    sourceTabs.forEach(({ tab }) => {
+        tab.addEventListener('click', () => {
+            if (tab.getAttribute('aria-selected') !== 'true') selectSource(tab);
+        });
     });
 
     // Vorbereitung für den Audio-Visualizer

@@ -12,138 +12,124 @@
         <!-- Sidebar -->
         <aside id="sidebar">
             <section>
-                <h3>AUDIO</h3>
-                <ul id="audio-list">
-                    <li class ="audio-item" data-audio="/audio/groovy-vibe.mp3">Track 1</li>
-                    <li class ="audio-item" data-audio="/audio/retro-lounge.mp3">Track 2</li>
-                    <li class ="audio-item" data-audio="/audio/sweet-life-luxury-chill.mp3">Track 3</li>
-                    <li class ="audio-item" data-audio="/audio/Land_of_8_Bits.wav">Track 4</li>
-                </ul>
-                <div id="audio-controls">
-                    <button id="btn-play">Play</button>
-                    <button id="btn-stop">Stop</button>
+                <h3>MUSIK</h3>
+
+                <!-- Quelle: Tracks und Live-Eingang laufen nie gleichzeitig, daher nur einer sichtbar -->
+                <div id="source-tabs" class="segmented" role="tablist" aria-label="Audioquelle">
+                    <button
+                        id="tab-tracks"
+                        class="segmented-button"
+                        type="button"
+                        role="tab"
+                        aria-selected="true"
+                        aria-controls="panel-tracks"
+                    >TRACKS</button>
+                    <button
+                        id="tab-live"
+                        class="segmented-button"
+                        type="button"
+                        role="tab"
+                        aria-selected="false"
+                        aria-controls="panel-live"
+                    >LIVE</button>
                 </div>
-                <div id="live-control" class="control-group">
-                    <div class="control-header">
-                        <span class="control-title">LIVE-EINGANG</span>
-                        <button
-                            id="live-toggle"
-                            class="toggle-button"
-                            type="button"
-                            role="switch"
-                            aria-checked="false"
-                        >
-                            AUS
-                        </button>
+
+                <div id="panel-tracks" role="tabpanel" aria-labelledby="tab-tracks">
+                    <ul id="audio-list">
+                        <li class ="audio-item" data-audio="/audio/groovy-vibe.mp3">Track 1</li>
+                        <li class ="audio-item" data-audio="/audio/retro-lounge.mp3">Track 2</li>
+                        <li class ="audio-item" data-audio="/audio/sweet-life-luxury-chill.mp3">Track 3</li>
+                        <li class ="audio-item" data-audio="/audio/Land_of_8_Bits.wav">Track 4</li>
+                    </ul>
+                    <div id="drop-zone" class="drop-zone">
+                        <p>Datei hierher ziehen oder <span>klicken</span></p>
                     </div>
-
-                    <select id="live-device-select" class="control-select">
-                        <option value="">Standard-Eingang</option>
-                    </select>
-                </div>
-                <div id="input-gain-control" class="control-group">
-                    <div class="control-header">
-                        <span class="control-title">EINGANGS-GAIN</span>
-                        <span id="input-gain-value" class="control-value">1.00x</span>
+                    <div id="audio-controls">
+                        <button id="btn-play">Play</button>
+                        <button id="btn-stop">Stop</button>
                     </div>
+                    <div id="speed-control" class="control-group">
+                        <div class="control-header">
+                            <span class="control-title">SPEED</span>
+                            <label class="control-value">
+                                <input
+                                    id="speed-value"
+                                    class="control-number"
+                                    type="number"
+                                    min="0.5"
+                                    max="2"
+                                    step="0.01"
+                                    value="1.00"
+                                    aria-label="Speed"
+                                >x
+                            </label>
+                        </div>
 
-                    <div class="control-slider-row">
-                        <span class="control-limit">0x</span>
-
-                        <input
-                            id="input-gain-slider"
-                            class="control-slider"
-                            type="range"
-                            min="0"
-                            max="4"
-                            step="0.05"
-                            value="1"
-                        >
-
-                        <span class="control-limit">4x</span>
-                    </div>
-                </div>
-                <div id="speed-control" class="control-group">
-                    <div class="control-header">
-                        <span class="control-title">SPEED</span>
-                        <span id="speed-value" class="control-value">1.00x</span>
-                    </div>
-
-                    <div class="control-slider-row">
-                        <span class="control-limit">0.5x</span>
-
-                        <input
-                            id="speed-slider"
-                            class="control-slider"
-                            type="range"
-                            min="0.5"
-                            max="2"
-                            step="0.01"
-                            value="1"
-                        >
-
-                        <span class="control-limit">2.0x</span>
+                        <div class="control-slider-row">
+                            <input
+                                id="speed-slider"
+                                class="control-slider"
+                                type="range"
+                                min="0.5"
+                                max="2"
+                                step="0.01"
+                                value="1"
+                            >
+                        </div>
                     </div>
                 </div>
-                <div id="bass-threshold-control" class="control-group">
-                    <div class="control-header">
-                        <span class="control-title">BASS-SCHWELLE</span>
-                        <span id="bass-threshold-value" class="control-value">150</span>
+
+                <div id="panel-live" role="tabpanel" aria-labelledby="tab-live" hidden>
+                    <div id="live-control" class="control-group">
+                        <div class="control-header">
+                            <span class="control-title">LIVE-EINGANG</span>
+                            <button
+                                id="live-toggle"
+                                class="toggle-button"
+                                type="button"
+                                role="switch"
+                                aria-checked="false"
+                            >
+                                AUS
+                            </button>
+                        </div>
+
+                        <select id="live-device-select" class="control-select">
+                            <option value="">Standard-Eingang</option>
+                        </select>
                     </div>
+                    <div id="input-gain-control" class="control-group">
+                        <div class="control-header">
+                            <span class="control-title">EINGANGS-GAIN</span>
+                            <label class="control-value">
+                                <input
+                                    id="input-gain-value"
+                                    class="control-number"
+                                    type="number"
+                                    min="0"
+                                    max="4"
+                                    step="0.05"
+                                    value="1.00"
+                                    aria-label="Eingangs-Gain"
+                                >x
+                            </label>
+                        </div>
 
-                    <div class="control-slider-row">
-                        <span class="control-limit">100</span>
-
-                        <input
-                            id="bass-threshold-slider"
-                            class="control-slider"
-                            type="range"
-                            min="100"
-                            max="200"
-                            step="1"
-                            value="150"
-                        >
-
-                        <span class="control-limit">200</span>
+                        <div class="control-slider-row">
+                            <input
+                                id="input-gain-slider"
+                                class="control-slider"
+                                type="range"
+                                min="0"
+                                max="4"
+                                step="0.05"
+                                value="1"
+                            >
+                        </div>
                     </div>
                 </div>
-                <div id="drop-zone" class="drop-zone">
-                    <p>Datei hierher ziehen oder <span>klicken</span></p>
-                </div>
+
                 <canvas id="visualizer-canvas" width="512" height="120"></canvas>
-            </section>
-
-            <section>
-                <h3>EINFLUSS</h3>
-                <ul id="brush-list">
-                    <li class="brush-item active" data-mode="spray">Temperatur</li>
-                    <li class="brush-item" data-mode="heat">Licht</li>
-                    <li class="brush-item" data-mode="storm">Sturm</li>
-                    <li class="brush-item" data-mode="erase">Löschen</li>
-                </ul>
-
-                <div id="brush-radius-control" class="control-group">
-                    <div class="control-header">
-                        <span class="control-title">RADIUS</span>
-                        <span id="brush-radius-value" class="control-value">3</span>
-                    </div>
-
-                    <div class="control-slider-row">
-                        <span class="control-limit">2</span>
-
-                        <input
-                            id="brush-radius-slider"
-                            class="control-slider"
-                            type="range"
-                            min="2"
-                            max="10"
-                            step="1"
-                            value="3"
-                        >
-
-                        <span class="control-limit">10</span>
-                    </div>
-                </div>
             </section>
 
             <section>
@@ -168,6 +154,76 @@
                         >
                             AUS
                         </button>
+                    </div>
+                </div>
+
+                <div id="bass-threshold-control" class="control-group">
+                    <div class="control-header">
+                        <span class="control-title">BASS-SCHWELLE</span>
+                        <label class="control-value">
+                            <input
+                                id="bass-threshold-value"
+                                class="control-number"
+                                type="number"
+                                min="100"
+                                max="200"
+                                step="1"
+                                value="150"
+                                aria-label="Bass-Schwelle"
+                            >
+                        </label>
+                    </div>
+
+                    <div class="control-slider-row">
+                        <input
+                            id="bass-threshold-slider"
+                            class="control-slider"
+                            type="range"
+                            min="100"
+                            max="200"
+                            step="1"
+                            value="150"
+                        >
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h3>EINFLUSS</h3>
+                <ul id="brush-list">
+                    <li class="brush-item active" data-mode="spray">Temperatur</li>
+                    <li class="brush-item" data-mode="heat">Licht</li>
+                    <li class="brush-item" data-mode="storm">Sturm</li>
+                    <li class="brush-item" data-mode="erase">Löschen</li>
+                </ul>
+
+                <div id="brush-radius-control" class="control-group">
+                    <div class="control-header">
+                        <span class="control-title">RADIUS</span>
+                        <label class="control-value">
+                            <input
+                                id="brush-radius-value"
+                                class="control-number"
+                                type="number"
+                                min="2"
+                                max="10"
+                                step="1"
+                                value="3"
+                                aria-label="Pinselradius"
+                            >
+                        </label>
+                    </div>
+
+                    <div class="control-slider-row">
+                        <input
+                            id="brush-radius-slider"
+                            class="control-slider"
+                            type="range"
+                            min="2"
+                            max="10"
+                            step="1"
+                            value="3"
+                        >
                     </div>
                 </div>
             </section>

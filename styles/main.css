@@ -44,6 +44,41 @@ body {
     border: 1px solid var(--accent);
 }
 
+/* Eintippbarer Wert neben einem Regler – sieht aus wie der reine Wert, bis man drüberfährt */
+.control-number {
+    width: 4.5ch;
+    padding: 0;
+
+    font: inherit;
+    color: inherit;
+    text-align: right;
+
+    background: transparent;
+    border: none;
+    border-bottom: 1px dashed transparent;
+
+    appearance: textfield;
+    -moz-appearance: textfield;
+    cursor: text;
+}
+
+/* Pfeiltasten-Spinner des Browsers ausblenden */
+.control-number::-webkit-inner-spin-button,
+.control-number::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.control-number:hover {
+    border-bottom-color: var(--accent);
+}
+
+.control-number:focus {
+    outline: none;
+    background: var(--surface);
+    border-bottom: 1px solid var(--accent);
+}
+
 .toggle-button {
     min-width: 48px;
     padding: 2px 5px;
@@ -86,16 +121,40 @@ body {
 
 .control-slider-row {
     display: grid;
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: 1fr;
     align-items: center;
-    gap: 7px;
 }
 
-.control-limit {
-    font-size: 9px;
+/* Umschalter TRACKS | LIVE */
+.segmented {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    margin-bottom: 10px;
+    border: 1px solid var(--accent);
+}
+
+.segmented-button {
+    padding: 4px 0;
+
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: bold;
+    letter-spacing: 2px;
+
     color: var(--accent);
-    opacity: 0.8;
-    white-space: nowrap;
+    background: var(--bg);
+    border: none;
+
+    cursor: pointer;
+}
+
+.segmented-button + .segmented-button {
+    border-left: 1px solid var(--accent);
+}
+
+.segmented-button[aria-selected="true"] {
+    color: var(--bg);
+    background: var(--accent);
 }
 
 .control-slider {
@@ -420,7 +479,7 @@ body {
 
 #app {
     display: grid;
-    grid-template-columns: 160px 1fr;
+    grid-template-columns: 180px 1fr;
     flex: 1;
     overflow: hidden;
     height: calc(100dvh);
@@ -457,6 +516,29 @@ body {
 #sidebar li:hover {
     color: var(--accent);
     border-left-color: var(--accent);
+}
+
+/* Pinselmodi als 2×2-Raster */
+#brush-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+}
+
+#sidebar #brush-list li {
+    padding: 5px 2px;
+    font-size: 10px;
+    text-align: center;
+    border: 1px solid var(--accent);
+}
+
+#sidebar #brush-list li:hover {
+    background: var(--bg);
+}
+
+#sidebar #brush-list li.active {
+    color: var(--bg);
+    background: var(--accent);
 }
 
 #main-display {
