@@ -181,24 +181,6 @@
                     <li class="theme-item" data-color="blue">Blau</li>
                 </ul>
             </section>
-
-            <section>
-                <h3>AUSGABE</h3>
-                <div id="audience-control" class="control-group">
-                    <div class="control-header">
-                        <span class="control-title">ZUSCHAUER-FENSTER</span>
-                        <button
-                            id="audience-toggle"
-                            class="toggle-button"
-                            type="button"
-                            role="switch"
-                            aria-checked="false"
-                        >
-                            AUS
-                        </button>
-                    </div>
-                </div>
-            </section>
         </aside>    
 
         <!-- Hauptanzeige -->
@@ -251,6 +233,21 @@
             aria-label="Aufnahme starten"
         >
             <span class="record-dot"></span>
+        </button>
+
+        <!-- Zuschauer-Fenster: zeigt nur den Automaten, z.B. auf dem Beamer -->
+        <button
+            id="audience-btn"
+            type="button"
+            aria-label="Zuschauer-Fenster öffnen"
+            aria-pressed="false"
+            title="Zuschauer-Fenster"
+        >
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                <path d="M11 5H5v14h14v-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/>
+                <path d="M8.5 16C9.5 11 12.5 8.5 17 8.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+                <path d="M15.5 4.5 21.5 8.5 15.5 12.5Z" fill="currentColor"/>
+            </svg>
         </button>
     </div>
     <script type="module" src="src/main.js"></script>

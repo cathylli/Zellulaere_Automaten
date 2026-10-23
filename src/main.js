@@ -51,10 +51,71 @@ window.addEventListener('load', () => {
         }
         automaton.setBrushMode(previousBrushMode);
         automaton.setBrushRadius(previousBrushRadius);
+
+        // Neue Instanz startet mit der Standard-Zellgröße, aktuellen Zoom übernehmen
+        fitGridToCanvas(false);
+        automaton.randomize();
+
         apply(currentTheme, automaton);
         applyHeatState();
         automaton.start();
     }
+
+    // Zoom: nur die Zellen des Automaten werden größer/kleiner, nicht die ganze Seite
+    const DEFAULT_CELL_SIZE = 6;
+    const MIN_CELL_SIZE = 2;
+    const MAX_CELL_SIZE = 24;
+    let cellSize = DEFAULT_CELL_SIZE;
+
+    // Gitter an Canvas-Größe und Zellgröße anpassen; vorhandene Zellen bleiben (oben links) erhalten
+    function fitGridToCanvas(keepGrid = true) {
+        automaton.cellsize = cellSize;
+        automaton.cols = Math.floor(canvas.width / cellSize);
+        automaton.rows = Math.floor(canvas.height / cellSize);
+        automaton.grid = Array.from({ length: automaton.rows }, (_, r) =>
+            Array.from({ length: automaton.cols }, (_, c) =>
+                keepGrid ? (automaton.grid[r]?.[c] ?? 0) : 0
+            )
+        );
+        automaton.draw();
+    }
+
+    function setCellSize(size) {
+        const clamped = Math.max(MIN_CELL_SIZE, Math.min(MAX_CELL_SIZE, size));
+        if (clamped === cellSize) return;
+        cellSize = clamped;
+        fitGridToCanvas();
+    }
+
+    // Strg + Mausrad (auch Pinch auf dem Touchpad) abfangen, statt die Seite zu zoomen
+    let wheelZoomDelta = 0;
+    window.addEventListener('wheel', (event) => {
+        if (!event.ctrlKey) return;
+        event.preventDefault();
+
+        // Touchpads liefern viele kleine Werte, deshalb sammeln bis ein Zoom-Schritt erreicht ist
+        wheelZoomDelta += event.deltaY;
+        while (Math.abs(wheelZoomDelta) >= 100) {
+            setCellSize(cellSize + (wheelZoomDelta < 0 ? 1 : -1));
+            wheelZoomDelta -= Math.sign(wheelZoomDelta) * 100;
+        }
+    }, { passive: false });
+
+    // Strg + Plus / Minus abfangen, Strg + 0 setzt Zellgröße und Seiten-Zoom zurück
+    window.addEventListener('keydown', (event) => {
+        if (!event.ctrlKey && !event.metaKey) return;
+
+        if (event.key === '+' || event.key === '=') {
+            event.preventDefault();
+            setCellSize(cellSize + 1);
+        } else if (event.key === '-') {
+            event.preventDefault();
+            setCellSize(cellSize - 1);
+        } else if (event.key === '0') {
+            // Nicht abfangen: der Browser setzt damit auch einen alten Seiten-Zoom auf 100 % zurück
+            setCellSize(DEFAULT_CELL_SIZE);
+        }
+    });
 
     // Resize
     let resizeTimeout;
@@ -63,14 +124,7 @@ window.addEventListener('load', () => {
         resizeTimeout = setTimeout(() => {
             canvas.width = canvas.offsetWidth;
             canvas.height = canvas.offsetHeight;
-            automaton.cols = Math.floor(canvas.width / automaton.cellsize);
-            automaton.rows = Math.floor(canvas.height / automaton.cellsize);
-            automaton.grid = Array.from({ length: automaton.rows }, (_, r) =>
-                Array.from({ length: automaton.cols }, (_, c) =>
-                    automaton.grid[r]?.[c] ?? 0
-                )
-            );
-            automaton.draw();
+            fitGridToCanvas();
         }, 100);
     });
     resizeObserver.observe(canvas);
@@ -374,13 +428,13 @@ window.addEventListener('load', () => {
     });
 
     // Zuschauer-Fenster: zeigt nur den Automaten, z.B. auf dem Beamer
-    const audienceToggle = document.getElementById('audience-toggle');
+    const audienceToggle = document.getElementById('audience-btn');
     let audienceWindow = null;
 
     function syncAudienceToggle() {
         const isOpen = audienceWindow !== null && !audienceWindow.closed;
-        audienceToggle.setAttribute('aria-checked', String(isOpen));
-        audienceToggle.textContent = isOpen ? 'AN' : 'AUS';
+        audienceToggle.setAttribute('aria-pressed', String(isOpen));
+        audienceToggle.setAttribute('aria-label', isOpen ? 'Zuschauer-Fenster schließen' : 'Zuschauer-Fenster öffnen');
     }
 
     audienceToggle.addEventListener('click', () => {
