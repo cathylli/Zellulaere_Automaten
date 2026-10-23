@@ -345,6 +345,46 @@ body {
     border-radius: 2px;
 }
 
+/* THEMA – Tetris-Teile unten links über dem Automaten */
+
+#theme-switcher {
+    position: absolute;
+    left: 24px;
+    bottom: 24px;
+
+    display: flex;
+    gap: 12px;
+
+    z-index: 25;
+}
+
+/* Runder Rahmen wie Aufnahme- und Teilenbutton, aber in den Farben des jeweiligen Themes */
+.theme-button {
+    width: 48px;
+    height: 48px;
+    padding: 0;
+
+    display: grid;
+    place-items: center;
+
+    border: 1px solid var(--theme-accent);
+    border-radius: 50%;
+    background: var(--theme-dead);
+
+    cursor: pointer;
+    transition: transform 0.15s;
+}
+
+.theme-button:hover {
+    transform: scale(1.08);
+}
+
+/* Aktives Theme: zusätzlicher Ring mit etwas Abstand */
+.theme-button[aria-pressed="true"] {
+    outline: 2px solid var(--theme-accent);
+    outline-offset: 3px;
+}
+
 /* ZUSCHAUER-FENSTER – links neben dem Aufnahmebutton */
 
 #audience-btn {

@@ -4,7 +4,7 @@ import { AudioEngine } from './audio/AudioEngine.js';
 import { DropZoneHandler } from './ui/DropZoneHandler.js';
 import  Visualizer  from './audio/AudioVisualizer.js';
 import Analyzer from './audio/Analyzer.js';
-import { apply } from './ui/ThemeManager.js';
+import { apply, createThemeButtons } from './ui/ThemeManager.js';
 import { Handtrack } from './tracking/HandTrack.js';
 import { CanvasRecorder } from './recording/CanvasRecorder.js';
 
@@ -345,14 +345,9 @@ window.addEventListener('load', () => {
     });
 
     // Theme Manager
-    const themeButtons = document.querySelectorAll('.theme-item');
-    themeButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            currentTheme = button.dataset.color;
-            apply(currentTheme, automaton);
-            themeButtons.forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
-        });
+    createThemeButtons(document.getElementById('theme-switcher'), currentTheme, (key) => {
+        currentTheme = key;
+        apply(currentTheme, automaton);
     });
 
     // Handtrack-Window

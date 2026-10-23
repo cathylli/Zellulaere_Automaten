@@ -171,21 +171,14 @@
                     </div>
                 </div>
             </section>
-
-            <section>
-                <h3>THEMA</h3>
-                <ul id="theme-list">
-                    <li class="theme-item active" data-color="rosa">Rosa</li>
-                    <li class="theme-item" data-color="sw">S/W</li>
-                    <li class="theme-item" data-color="green">Grün</li>
-                    <li class="theme-item" data-color="blue">Blau</li>
-                </ul>
-            </section>
         </aside>    
 
         <!-- Hauptanzeige -->
         <main id="main-display">
             <canvas id="canvas-1"></canvas>
+
+            <!-- Theme-Auswahl: ein Tetris-Teil pro Theme, wird in main.js aus THEMES erzeugt -->
+            <div id="theme-switcher" role="group" aria-label="Thema"></div>
         </main>
 
         <div id="tracking-window">
