@@ -1,5 +1,7 @@
 import { Automaton } from './automata/Automaton.js';
 import { SmoothAutomaton } from './automata/SmoothAutomaton.js';
+import { GpuAutomaton } from './automata/GpuAutomaton.js';
+import { GpuSmoothAutomaton } from './automata/GpuSmoothAutomaton.js';
 import { AudioEngine } from './audio/AudioEngine.js';
 import { DropZoneHandler } from './ui/DropZoneHandler.js';
 import  Visualizer  from './audio/AudioVisualizer.js';
@@ -21,7 +23,13 @@ window.addEventListener('load', () => {
 
     const canvasRecorder = new CanvasRecorder(canvas, recordButton, audioEngine);
 
-    let automaton = new Automaton(canvas, 'highLife');
+    // GPU (WebGL2) verwenden, wenn verfügbar; mit ?cpu in der URL lässt sich die CPU-Version erzwingen
+    const useGpu = !new URLSearchParams(location.search).has('cpu') && GpuAutomaton.isSupported();
+    const ClassicAutomaton = useGpu ? GpuAutomaton : Automaton;
+    const SmoothClass = useGpu ? GpuSmoothAutomaton : SmoothAutomaton;
+    console.log(`Automat läuft auf der ${useGpu ? 'GPU (WebGL2)' : 'CPU'}`);
+
+    let automaton = new ClassicAutomaton(canvas, 'highLife');
     let currentTheme = 'rosa';
     apply(currentTheme, automaton);
     automaton.setBPM(1000);
@@ -32,21 +40,21 @@ window.addEventListener('load', () => {
         const previousBrushMode = automaton.brushMode;
         const previousBrushRadius = automaton.brushRadius;
 
-        automaton.stop();
+        automaton.destroy();
         if (type === 'highLife') {
-            automaton = new Automaton(canvas, 'highLife');
+            automaton = new ClassicAutomaton(canvas, 'highLife');
             automaton.setBPM(1000);
         } else if (type === 'gameOfLife') {
-            automaton = new Automaton(canvas, 'gameOfLife');
+            automaton = new ClassicAutomaton(canvas, 'gameOfLife');
             automaton.setBPM(1000);
         } else if (type === 'seeds') {
-            automaton = new Automaton(canvas, 'seeds');
+            automaton = new ClassicAutomaton(canvas, 'seeds');
             automaton.setBPM(1000);
         } else if (type === 'smooth') {
-            automaton = new SmoothAutomaton(canvas);
+            automaton = new SmoothClass(canvas);
             automaton.setBPM(200);
         } else if (type === 'briansBrain') {
-            automaton = new Automaton(canvas, 'briansBrain');
+            automaton = new ClassicAutomaton(canvas, 'briansBrain');
             automaton.setBPM(1000);
         }
         automaton.setBrushMode(previousBrushMode);
@@ -63,21 +71,13 @@ window.addEventListener('load', () => {
 
     // Zoom: nur die Zellen des Automaten werden größer/kleiner, nicht die ganze Seite
     const DEFAULT_CELL_SIZE = 6;
-    const MIN_CELL_SIZE = 2;
+    const MIN_CELL_SIZE = 1;
     const MAX_CELL_SIZE = 24;
     let cellSize = DEFAULT_CELL_SIZE;
 
     // Gitter an Canvas-Größe und Zellgröße anpassen; vorhandene Zellen bleiben (oben links) erhalten
     function fitGridToCanvas(keepGrid = true) {
-        automaton.cellsize = cellSize;
-        automaton.cols = Math.floor(canvas.width / cellSize);
-        automaton.rows = Math.floor(canvas.height / cellSize);
-        automaton.grid = Array.from({ length: automaton.rows }, (_, r) =>
-            Array.from({ length: automaton.cols }, (_, c) =>
-                keepGrid ? (automaton.grid[r]?.[c] ?? 0) : 0
-            )
-        );
-        automaton.draw();
+        automaton.resize(cellSize, keepGrid);
     }
 
     function setCellSize(size) {
@@ -203,7 +203,7 @@ window.addEventListener('load', () => {
 
     function applyHeatState() {
         // Smooth Life bringt eine eigene Farbabbildung mit und kennt keine Wärme-Schicht
-        const isSupported = !(automaton instanceof SmoothAutomaton);
+        const isSupported = !(automaton instanceof SmoothClass);
         const isActive = isSupported && heatEnabled;
 
         heatToggle.disabled = !isSupported;
@@ -531,7 +531,7 @@ window.addEventListener('load', () => {
 
             // Bass-Level aus dem Song ableiten und auf den Automaten anwenden
             const bassLevel = analyzer.getBassLevel();
-            if (automaton instanceof SmoothAutomaton) {
+            if (automaton instanceof SmoothClass) {
                 // Lautstärke relativ zum Durchschnitt der letzten ~0,3 s: ein Schlag, der doppelt so
                 // laut ist wie der Durchschnitt, ergibt excess = 1; leiser als der Durchschnitt = 0
                 const loudness = analyzer.getLoudness();

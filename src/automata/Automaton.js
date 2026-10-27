@@ -1,4 +1,14 @@
 import { RULES } from './rules.js';
+import { attachMouseBrush } from '../ui/MouseBrush.js';
+
+// Thermische Palette der Wärme-Spur: dunkel → blau → magenta → orange → weiß
+export const HEAT_STOPS = [
+    [0.00, [5,   0,   15]],
+    [0.20, [30,  0,   80]],
+    [0.50, [200, 0,   100]],
+    [0.75, [255, 130, 20]],
+    [1.00, [255, 245, 180]],
+];
 
 export class Automaton {
     constructor(canvas, ruleKey) {
@@ -111,6 +121,19 @@ export class Automaton {
         this.bpm = newBPM;
     }
 
+    // Gitter an Canvas-Größe und Zellgröße anpassen; vorhandene Zellen bleiben (oben links) erhalten
+    resize(cellsize, keepGrid = true) {
+        this.cellsize = cellsize;
+        this.cols = Math.floor(this.canvas.width / cellsize);
+        this.rows = Math.floor(this.canvas.height / cellsize);
+        this.grid = Array.from({ length: this.rows }, (_, r) =>
+            Array.from({ length: this.cols }, (_, c) =>
+                keepGrid ? (this.grid[r]?.[c] ?? 0) : 0
+            )
+        );
+        this.draw();
+    }
+
     // Wärme folgt den lebenden Zellen und zerfällt danach mit etwas Nachbar-Diffusion
     updateHeat(next) {
         this.ensureHeat();
@@ -145,14 +168,7 @@ export class Automaton {
     }
 
     colorFromHeat(v) {
-        // Thermische Palette: dunkel → blau → magenta → orange → weiß
-        const stops = [
-            [0.00, [5,   0,   15]],
-            [0.20, [30,  0,   80]],
-            [0.50, [200, 0,   100]],
-            [0.75, [255, 130, 20]],
-            [1.00, [255, 245, 180]],
-        ];
+        const stops = HEAT_STOPS;
         v = Math.max(0, Math.min(1, v));
         for (let i = 0; i < stops.length - 1; i++) {
             const [t0, c0] = stops[i];
@@ -248,28 +264,15 @@ export class Automaton {
         this.running = false;
     }
 
+    // Entfernt die Maus-Listener, wenn auf einen anderen Automaten gewechselt wird
+    destroy() {
+        this.stop();
+        this.removeMouseEvents();
+    }
+
     //Maus-Pinsel
     initMouseEvents() {
-        let isDrawing = false;
-
-        const handleMouse = (event) => {
-            const rect = this.canvas.getBoundingClientRect();
-
-            const scaleX = this.canvas.width / rect.width;
-            const scaleY = this.canvas.height / rect.height;
-
-            const canvasX =
-                (event.clientX - rect.left) * scaleX;
-
-            const canvasY =
-                (event.clientY - rect.top) * scaleY;
-
-            this.applyBrushAt(canvasX, canvasY);
-        };
-
-        this.canvas.addEventListener('mousedown', (e) => { isDrawing = true; handleMouse(e); });
-        this.canvas.addEventListener('mousemove', (e) => { if (isDrawing) handleMouse(e); });
-        window.addEventListener('mouseup', () => isDrawing = false);
+        this.removeMouseEvents = attachMouseBrush(this.canvas, (x, y) => this.applyBrushAt(x, y));
     }
 
     applyBrushAt(canvasX, canvasY) {

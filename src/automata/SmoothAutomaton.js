@@ -1,7 +1,7 @@
 import { Automaton } from './Automaton.js';
 
 // Thermische Palette: schwarz → blau → rot → gelb → weiß
-const PALETTE_STOPS = [
+export const PALETTE_STOPS = [
     [0.00, [5,   0,   15]],
     [0.20, [20,  0,   80]],
     [0.45, [180, 0,   80]],
@@ -9,7 +9,7 @@ const PALETTE_STOPS = [
     [0.85, [255, 220, 50]],
     [1.00, [255, 255, 220]],
 ];
-const BACKGROUND = [5, 0, 16];
+export const BACKGROUND = [5, 0, 16];
 
 // Smooth Life nach Stephan Rafler (2011) — kontinuierliche Erweiterung von Game of Life
 export class SmoothAutomaton extends Automaton {
