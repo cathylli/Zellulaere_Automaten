@@ -40,7 +40,8 @@ class Analyzer {
     return avgEnergy;
   }
 
-  getBassLevel() {
+  // Bestimmt, wann der Automat aufblüht (Bloom)
+  getBloomLevel() {
     const buffer = this.getBuffer();
     const bufferLength = buffer.length;
     const dataArray = new Uint8Array(bufferLength);
@@ -57,6 +58,23 @@ class Analyzer {
     // Durchschnittswert des Bass-Bereichs (0 bis 255)
     return sum / bassRange;
 }
+
+  // Durchschnittliche Amplitude nur im echten Bass-Bereich (Kick und Bass, 0 bis maxBassFrequency Hz)
+  getBassLevel(maxBassFrequency = 150) {
+    const buffer = this.getBuffer();
+
+    // Index aus der Frequenz berechnen, damit der Bereich unabhängig von der Samplerate ist
+    // (mindestens ein Bin, damit nicht durch 0 geteilt wird)
+    const bassRange = Math.max(1, Math.floor(maxBassFrequency / this.maxFrequency() * buffer.length));
+    let sum = 0;
+
+    for (let i = 0; i < bassRange; i++) {
+        sum += buffer[i];
+    }
+
+    // Durchschnittswert des Bass-Bereichs (0 bis 255)
+    return sum / bassRange;
+  }
 
   // Momentane Lautstärke (RMS der Wellenform, 0–1)
   // Anders als die FFT-Werte nicht über die Zeit geglättet, reagiert also sofort auf Schläge

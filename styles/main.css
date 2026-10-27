@@ -33,6 +33,19 @@ body {
     font-weight: bold;
 }
 
+/* Mehrere Bedienelemente rechts in der Kopfzeile, z.B. Wert und An/Aus-Schalter */
+.control-actions {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+}
+
+/* Ausgeschaltete Regler abdunkeln */
+.control-group.is-off .control-value,
+.control-group.is-off .control-slider {
+    opacity: 0.35;
+}
+
 .control-value {
     min-width: 48px;
     padding: 2px 5px;

@@ -216,10 +216,10 @@ zellulaere-automaten/
      └──────┬───────┘
             │ AnalyserNode
             ▼
-     ┌──────────────┐  getBuffer()    ──▶ Visualizer ──▶ visualizer-canvas
-     │   Analyzer   │  getEnergy()    ──▶ setBPM()
-     └──┬────────┬──┘  getBassLevel() ──▶ randomizeGrid()
-        │        │                              │
+     ┌──────────────┐  getBuffer()     ──▶ Visualizer ──▶ visualizer-canvas
+     │   Analyzer   │  getEnergy()     ──▶ setBPM()
+     └──┬────────┬──┘  getBassLevel()  ─┬▶ randomizeGrid()
+        │        │     getBloomLevel() ─┘       │
         │        │                              ▼
         │        │                       ┌──────────────┐                  ┌────────────┐
         │        │                       │  Automaton   │◀─────────────────│ Maus /     │

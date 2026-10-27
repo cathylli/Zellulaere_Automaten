@@ -278,7 +278,17 @@ window.addEventListener('load', () => {
     })
     linkNumberInput(speedSlider, speedValue, 2);
 
-    // Bass-Schwelle: ab welchem Bass-Level das Gitter zufällig belebt wird
+    // Bloom-Schwelle: ab welchem Bloom-Level das Gitter zufällig belebt wird
+    const bloomThresholdSlider = document.getElementById('bloom-threshold-slider');
+    const bloomThresholdValue = document.getElementById('bloom-threshold-value');
+    let bloomThreshold = Number(bloomThresholdSlider.value);
+
+    bloomThresholdSlider.addEventListener('input', (event) => {
+        bloomThreshold = Number(event.target.value);
+    });
+    linkNumberInput(bloomThresholdSlider, bloomThresholdValue);
+
+    // Bass-Schwelle: ab welchem Bass-Level nur noch auf den Bass reagiert wird (Bloom wird dann ignoriert)
     const bassThresholdSlider = document.getElementById('bass-threshold-slider');
     const bassThresholdValue = document.getElementById('bass-threshold-value');
     let bassThreshold = Number(bassThresholdSlider.value);
@@ -287,6 +297,35 @@ window.addEventListener('load', () => {
         bassThreshold = Number(event.target.value);
     });
     linkNumberInput(bassThresholdSlider, bassThresholdValue);
+
+    // An/Aus-Schalter für Bloom- und Bass-Reaktion; ausgeschaltet werden Regler und Zahlenfeld gesperrt
+    let bloomEnabled = true;
+    let bassEnabled = true;
+
+    function linkReactionToggle(toggle, slider, numberInput, onChange) {
+        let enabled = toggle.getAttribute('aria-checked') === 'true';
+
+        const sync = () => {
+            toggle.setAttribute('aria-checked', String(enabled));
+            toggle.textContent = enabled ? 'AN' : 'AUS';
+            slider.disabled = !enabled;
+            numberInput.disabled = !enabled;
+            slider.closest('.control-group').classList.toggle('is-off', !enabled);
+            onChange(enabled);
+        };
+
+        toggle.addEventListener('click', () => {
+            enabled = !enabled;
+            sync();
+        });
+
+        sync();
+    }
+
+    linkReactionToggle(document.getElementById('bloom-toggle'), bloomThresholdSlider, bloomThresholdValue,
+        (enabled) => { bloomEnabled = enabled; });
+    linkReactionToggle(document.getElementById('bass-toggle'), bassThresholdSlider, bassThresholdValue,
+        (enabled) => { bassEnabled = enabled; });
 
     // Live-Eingang (Mischpult): ersetzt die Track-Wiedergabe als Audioquelle
     const liveToggle = document.getElementById('live-toggle');
@@ -529,8 +568,12 @@ window.addEventListener('load', () => {
 
             automaton.setBPM(bpm);
 
-            // Bass-Level aus dem Song ableiten und auf den Automaten anwenden
-            const bassLevel = analyzer.getBassLevel();
+            // Reicht der Bass, wird nur auf ihn reagiert, sonst auf das Bloom-Level
+            // (ausgeschaltete Reaktionen lösen nicht aus)
+            const bassHit = bassEnabled && analyzer.getBassLevel() > bassThreshold;
+            const bloomHit = bloomEnabled && analyzer.getBloomLevel() > bloomThreshold;
+            const shouldBloom = bassHit || bloomHit;
+
             if (automaton instanceof SmoothClass) {
                 // Lautstärke relativ zum Durchschnitt der letzten ~0,3 s: ein Schlag, der doppelt so
                 // laut ist wie der Durchschnitt, ergibt excess = 1; leiser als der Durchschnitt = 0
@@ -539,12 +582,12 @@ window.addEventListener('load', () => {
                 const excess = loudnessAverage > 0 ? loudness / loudnessAverage - 1 : 0;
                 automaton.flash(Math.min(1, Math.max(0, excess * pulseSensitivity)));
 
-                // Bass über der Schwelle: Tempo kurzzeitig erhöhen
-                if (bassLevel > bassThreshold) {
+                // Bass bzw. Bloom über der Schwelle: Tempo kurzzeitig erhöhen
+                if (shouldBloom) {
                     automaton.boost();
                 }
-            } else if (bassLevel > bassThreshold) { // Wenn der Bass-Level hoch ist, randomize das Gitter
-                automaton.randomizeGrid(0.01); // Zufällige Zellen aktivieren, wenn der Bass-Level hoch ist
+            } else if (shouldBloom) { // Bass bzw. Bloom über der Schwelle: Gitter zufällig beleben
+                automaton.randomizeGrid(0.01);
             }
         }
     }

@@ -107,7 +107,7 @@
                                     class="control-number"
                                     type="number"
                                     min="0"
-                                    max="4"
+                                    max="10"
                                     step="0.05"
                                     value="1.00"
                                     aria-label="Eingangs-Gain"
@@ -121,7 +121,7 @@
                                 class="control-slider"
                                 type="range"
                                 min="0"
-                                max="4"
+                                max="10"
                                 step="0.05"
                                 value="1"
                             >
@@ -157,21 +157,75 @@
                     </div>
                 </div>
 
+                <div id="bloom-threshold-control" class="control-group">
+                    <div class="control-header">
+                        <span class="control-title">BLOOM-SCHWELLE</span>
+                        <div class="control-actions">
+                            <label class="control-value">
+                                <input
+                                    id="bloom-threshold-value"
+                                    class="control-number"
+                                    type="number"
+                                    min="100"
+                                    max="200"
+                                    step="1"
+                                    value="150"
+                                    aria-label="Bloom-Schwelle"
+                                >
+                            </label>
+                            <button
+                                id="bloom-toggle"
+                                class="toggle-button"
+                                type="button"
+                                role="switch"
+                                aria-checked="true"
+                                aria-label="Bloom-Reaktion"
+                            >
+                                AN
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="control-slider-row">
+                        <input
+                            id="bloom-threshold-slider"
+                            class="control-slider"
+                            type="range"
+                            min="100"
+                            max="200"
+                            step="1"
+                            value="150"
+                        >
+                    </div>
+                </div>
+
                 <div id="bass-threshold-control" class="control-group">
                     <div class="control-header">
                         <span class="control-title">BASS-SCHWELLE</span>
-                        <label class="control-value">
-                            <input
-                                id="bass-threshold-value"
-                                class="control-number"
-                                type="number"
-                                min="100"
-                                max="200"
-                                step="1"
-                                value="150"
-                                aria-label="Bass-Schwelle"
+                        <div class="control-actions">
+                            <label class="control-value">
+                                <input
+                                    id="bass-threshold-value"
+                                    class="control-number"
+                                    type="number"
+                                    min="100"
+                                    max="255"
+                                    step="1"
+                                    value="200"
+                                    aria-label="Bass-Schwelle"
+                                >
+                            </label>
+                            <button
+                                id="bass-toggle"
+                                class="toggle-button"
+                                type="button"
+                                role="switch"
+                                aria-checked="true"
+                                aria-label="Bass-Reaktion"
                             >
-                        </label>
+                                AN
+                            </button>
+                        </div>
                     </div>
 
                     <div class="control-slider-row">
@@ -180,9 +234,9 @@
                             class="control-slider"
                             type="range"
                             min="100"
-                            max="200"
+                            max="255"
                             step="1"
-                            value="150"
+                            value="200"
                         >
                     </div>
                 </div>
