@@ -1,4 +1,6 @@
-import { FilesetResolver, HandLandmarker, DrawingUtils } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0";
+// MediaPipe wird erst beim Kamerastart aus dem Netz geladen, damit die App auch offline startet
+// Bibliothek und WASM-Dateien aus derselben Version, sonst passen sie nach einem Update nicht mehr zusammen
+const MEDIAPIPE_URL = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0';
 
 export class Handtrack {
     constructor(video, canvas, getAutomaton, speedSlider) {
@@ -23,8 +25,9 @@ export class Handtrack {
     async initialize() {
         if (this.landmarker) return;
 
-        // Mediapipe WASM laden
-        const vision = await FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/wasm');
+        // Mediapipe-Bibliothek und WASM laden (schlägt ohne Internet fehl, start() meldet dann einen Fehler)
+        const { FilesetResolver, HandLandmarker, DrawingUtils } = await import(/* @vite-ignore */ MEDIAPIPE_URL);
+        const vision = await FilesetResolver.forVisionTasks(`${MEDIAPIPE_URL}/wasm`);
 
         //Hand-Landmarker erstellen und konfigurieren
         this.landmarker =
@@ -49,6 +52,7 @@ export class Handtrack {
 
         // Zeichenwerkzeug für Landmark-Punkte und Handverbindungen
         this.drawer = new DrawingUtils(this.ctx);
+        this.handConnections = HandLandmarker.HAND_CONNECTIONS;
     }
 
     async start() {
@@ -132,7 +136,7 @@ export class Handtrack {
         for (const hand of result.landmarks) {
             this.drawer.drawConnectors(
                 hand,
-                HandLandmarker.HAND_CONNECTIONS,
+                this.handConnections,
                 {
                     color: accent,
                     lineWidth: 3
