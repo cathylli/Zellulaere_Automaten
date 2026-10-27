@@ -506,6 +506,23 @@ body {
     flex-direction: column;
     gap: 24px;
     overflow-y: auto;
+
+    /* Schmale Scrollbar in den Theme-Farben (Chrome, Edge, Firefox) */
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent) var(--surface);
+}
+
+/* Fallback für Browser ohne scrollbar-color (z.B. Safari) */
+#sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+#sidebar::-webkit-scrollbar-track {
+    background: var(--surface);
+}
+
+#sidebar::-webkit-scrollbar-thumb {
+    background: var(--accent);
 }
 
 #sidebar h3 {
